@@ -19,13 +19,13 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "adc.h"
-#include "dma.h"
 #include "spi.h"
 #include "usart.h"
 #include "gpio.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include "stdio.h"
 
 /* USER CODE END Includes */
 
@@ -47,6 +47,25 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
+//int fputc(int ch,FILE *f)
+//{
+
+//	HAL_UART_Transmit(&huart4,(uint8_t *)&ch,1,HAL_MAX_DELAY);  
+//	return ch;
+//}
+
+#ifdef __GNUC__
+ #define PUTCHAR_PROTOTYPE int __io_putchar(int ch)
+ #else
+ #define PUTCHAR_PROTOTYPE int fputc(int ch, FILE *f)
+ #endif
+ PUTCHAR_PROTOTYPE
+ {
+ HAL_UART_Transmit(&huart4 , (uint8_t *)&ch, 1, 0xFFFF);
+ return ch;
+ }
+ 
+
 
 /* USER CODE END PV */
 
@@ -90,11 +109,11 @@ int main(void)
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
-  MX_DMA_Init();
   MX_ADC1_Init();
   MX_SPI3_Init();
   MX_UART4_Init();
   /* USER CODE BEGIN 2 */
+//	printf("hello my odrive!\r\n");
 
   /* USER CODE END 2 */
 
@@ -105,6 +124,8 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
+			printf("hello my odrive!\r\n");
+		HAL_Delay(1000);
   }
   /* USER CODE END 3 */
 }
