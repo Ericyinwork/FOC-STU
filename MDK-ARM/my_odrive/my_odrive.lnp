@@ -3,6 +3,7 @@
 "my_odrive\main.o"
 "my_odrive\gpio.o"
 "my_odrive\adc.o"
+"my_odrive\dma.o"
 "my_odrive\spi.o"
 "my_odrive\usart.o"
 "my_odrive\stm32f4xx_it.o"
