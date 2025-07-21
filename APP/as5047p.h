@@ -58,10 +58,21 @@ extern   "C"
 #define AS5047P_ANGLE_MASK     0x3FFF    // 用于ANGLECOM/ANGLEUNC
 
 /* 非易失性寄存器地址宏 */
-#define AS5047P_ZPOSM    0x0016
-#define AS5047P_ZPOSL    0x0017
-#define AS5047P_SETTINGS1 0x0018
-#define AS5047P_SETTINGS2 0x0019
+/* AS5047P非易失性寄存器地址宏定义（OTP一次性可编程寄存器） */
+#define AS5047P_ZPOSM    0x0016  // 零位校准值高字节寄存器（14位绝对零位的高8位）
+                                // 与ZPOSL组合设置机械零位，写入后需固化到OTP存储器
+#define AS5047P_ZPOSL    0x0017  // 零位校准值低字节寄存器（14位绝对零位的低6位）
+                                // 注意：零位校准值写入后需通过OTP编程永久保存，仅能烧写一次
+
+#define AS5047P_SETTINGS1 0x0018 // 配置寄存器1，功能包括：
+                                // - 禁用动态角度误差补偿(DAEC)
+                                // - 选择ABI输出模式（二进制/十进制）
+                                // - 设置PWM输出极性
+#define AS5047P_SETTINGS2 0x0019 // 配置寄存器2，功能包括：
+                                // - 设置ABI分辨率（100-4096步/转）
+                                // - 配置UVW极对数（电机极对数）
+                                // - 启用滞后补偿
+                                // 注意：修改后需执行OTP编程才能永久生效
 
 /* ZPOSL磁场诊断使能位 */
 #define AS5047P_ZPOSL_MAGH_EN (1 << 15)  // 过强使能

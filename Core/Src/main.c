@@ -21,6 +21,7 @@
 #include "adc.h"
 #include "dma.h"
 #include "spi.h"
+#include "tim.h"
 #include "usart.h"
 #include "gpio.h"
 
@@ -124,10 +125,9 @@ int main(void)
   MX_ADC1_Init();
   MX_SPI3_Init();
   MX_UART4_Init();
+  MX_TIM2_Init();
   /* USER CODE BEGIN 2 */
 	
-		AS5047P_CS_H;  // 设置CS低电平开始通信
-		HAL_Delay(10);  // 延时1秒
 	 AS5047P_CS_L;  // 设置CS低电平开始通信
 
   HAL_SPI_TransmitReceive_DMA(&hspi3, (uint8_t *)0x7fff,(uint8_t *)&as5047_rx_data,2);  // 启动SPI接收
@@ -143,10 +143,9 @@ int main(void)
 
     /* USER CODE BEGIN 3 */
    // printf("Angle: %f radians, Multi-turn angle: %f radians\n", angle, angle_Multi);
-    printf("system running...\n");
-    HAL_Delay(1000);  // 延时1秒
-
-
+   // printf("system running...\n");
+   // HAL_Delay(1000);  // 延时1秒
+		printf("Angle: %f radians, Multi-turn angle: %f radians\r\n", angle);
   }
   /* USER CODE END 3 */
 }
@@ -206,14 +205,14 @@ void HAL_SPI_TxRxCpltCallback(SPI_HandleTypeDef *hspi)
   {
     // Handle SPI3 transmission complete
     AS5047P_CS_H;  // Set CS high to end transmission
-    printf("SPI3 Transmission Complete\n");
+  //  printf("SPI3 Transmission Complete\n");
    as5047_rx_data = as5047_rx_data & 0x3FFF;  // Mask to get 14-bit angle data
    angle = _2PI * as5047_rx_data / 0x3FFF;  // Convert to angle in radians 
    if (angle_mon_flag == 1)  // If angle monitoring is enabled
    {
      angle_start_mon = angle;  // Record the initial angle
      angle_mon_flag = 0;  // Reset the flag
-     printf("Initial angle recorded: %f radians\n", angle_start_mon);        
+   //  printf("Initial angle recorded: %f radians\n", angle_start_mon);        
    }
    float angle_deff = (float)as5047_rx_data - angle_mon;  // Calculate angle difference
    if(abs(angle_deff) > (0.8*16383))  // If angle difference exceeds threshold
@@ -222,12 +221,12 @@ void HAL_SPI_TxRxCpltCallback(SPI_HandleTypeDef *hspi)
    } 
    angle_mon = as5047_rx_data;
    angle_Multi = angle_add + angle;  // Calculate the multi-turn angle
-   printf("Angle: %f radians, Multi-turn angle: %f radians\n", angle);
+ //  printf("Angle: %f radians, Multi-turn angle: %f radians\n", angle);
 
    AS5047P_CS_L;  // Set CS low to start next transmission
    HAL_SPI_TransmitReceive_DMA(&hspi3, (uint8_t *)0x7fff,(uint8_t *)&as5047_rx_data,2);  // 启动SPI接收
-   printf("Next spi Transmit\n");
-}
+  // printf("Next spi Transmit\n");
+	}
 }
 
 
