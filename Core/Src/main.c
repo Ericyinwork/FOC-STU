@@ -45,6 +45,9 @@ unsigned char angle_mon_flag,angle_start_mon;///初始角度记录
 #define rotor_phy_angle (angle - angle_start_mon)     // 转子物理角度
 #define rotor_logic_angle rotor_phy_angle * Polar          // 转子多圈角度  极对数
 #define _constrain(amt,low,high) ((amt)<(low)?(low):((amt)>(high)?(high):(amt)))
+
+float u_1,u_2;
+
 /* USER CODE END PTD */
 
 /* Private define ------------------------------------------------------------*/
@@ -127,7 +130,10 @@ int main(void)
   MX_UART4_Init();
   MX_TIM2_Init();
   /* USER CODE BEGIN 2 */
-	
+	HAL_TIM_Base_Start(&htim2);  // 启动定时器
+  HAL_ADC_Start(&hadc1);  // 启动ADC  
+  HAL_ADCEx_InjectedStart_IT(&hadc1);
+
 	 AS5047P_CS_L;  // 设置CS低电平开始通信
 
   HAL_SPI_TransmitReceive_DMA(&hspi3, (uint8_t *)0x7fff,(uint8_t *)&as5047_rx_data,2);  // 启动SPI接收
@@ -145,7 +151,8 @@ int main(void)
    // printf("Angle: %f radians, Multi-turn angle: %f radians\n", angle, angle_Multi);
    // printf("system running...\n");
    // HAL_Delay(1000);  // 延时1秒
-		printf("Angle: %f radians, Multi-turn angle: %f radians\r\n", angle);
+		printf("Angle: %f radians, Multi-turn angle: %f radians\r\n", angle, angle_Multi);
+    printf("adc1 u_1: %f V, u_2: %f V\r\n", u_1, u_2);
   }
   /* USER CODE END 3 */
 }
@@ -229,6 +236,16 @@ void HAL_SPI_TxRxCpltCallback(SPI_HandleTypeDef *hspi)
 	}
 }
 
+
+void HAL_ADCEx_InjectedConvCpltCallback(ADC_HandleTypeDef *hadc)
+{
+  if (hadc->Instance == ADC1)  
+  {   
+    u_1 = 3.3f * (float)hadc->Instance->JDR1 / (1<<12);  // Convert ADC value to voltage
+    u_2 = 3.3f * (float)hadc->Instance->JDR2 / (1<<12);  // Convert ADC value to voltage
+  }
+  
+}
 
 /* USER CODE END 4 */
 
