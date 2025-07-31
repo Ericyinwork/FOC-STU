@@ -60,8 +60,11 @@ DRV_SPI_8301_Vars_t Vars;
 // the function prototypes handle
  int init_motor_control(void)
 		{
+			SPI_HandleTypeDef *hspi;
 			DRV8301_SetUp(&hdrv8301,&Vars);
+			DRV8301_writeData(&hdrv8301,&Vars);
 			DRV8301_readData(&hdrv8301,&Vars);
+
 			return RT_EOK;
 		}
 		
@@ -217,8 +220,8 @@ void DRV8301_writeData(DRV8301_Obj *handle, DRV_SPI_8301_Vars_t *vars)
 {
   DRV8301_RegName_e  drvRegName;
   uint16_t drvDataNew;
-//	if(hspi3.State == HAL_SPI_STATE_READY)
-//		vars->SndCmd = true;
+	if(hspi3.State == HAL_SPI_STATE_READY)
+		vars->SndCmd = true;
 
   if(vars->SndCmd)
   {

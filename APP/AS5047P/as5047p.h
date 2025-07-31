@@ -21,6 +21,7 @@
 #include "stdio.h"
 #include "math.h"
 #include "spi.h"
+#include "utils.h"
 
 #include "rtthread.h"
 

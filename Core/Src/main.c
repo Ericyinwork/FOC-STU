@@ -126,32 +126,36 @@ int main(void)
 	HAL_TIM_Base_Start(&htim2);  // 启动定时器
   HAL_ADC_Start(&hadc1);  // 启动ADC  
   HAL_ADCEx_InjectedStart_IT(&hadc1);
-//		result = init_motor_control();
-//				if( result == RT_EOK)
-//		{
-//			LOG_D("motor is init \r\n");
-//		}else
-//		{
-//			LOG_E("motor is init faild \r\n");
-//		}
+		result = init_motor_control();
+				if( result == RT_EOK)
+		{
+			LOG_D("motor is init \r\n");
+		}else
+		{
+			LOG_E("motor is init faild \r\n");
+		}
 		
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
 	LOG_P("rt-thread is runing!\r\n");
+
 		
-		as5047_start();	
+	rt_thread_mdelay(100);	
+	as5047_start();	
   while (1)
   {
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-		LOG_P("Angle: %f radians, Multi-turn angle: %f radians\r\n", angle, angle_Multi);
-		LOG_P("Angle: %f radians, Multi-turn angle: %f radians\r\n", angle, angle_Multi);
-    printf("adc1 u_1: %f V, u_2: %f V\r\n", u_1, u_2);
-		printf("adc1 u_1: %f V, u_2: %f V\r\n", u_1, u_2);
-		rt_thread_mdelay(100);
+//		LOG_P("Angle: %f radians, Multi-turn angle: %f radians\r\n", angle, angle_Multi);
+//		LOG_P("Angle: %d radians, Multi-turn angle: %d radians\r\n", angle, angle_Multi);
+//		LOG_D("Angle: %d radians, Multi-turn angle: %d radians\r\n", angle, angle_Multi);
+		LOG_D("Angle: %d radians, Multi-turn angle: %d radians\r\n", angle, angle_Multi);
+//    printf("adc1 u_1: %f V, u_2: %f V\r\n", u_1, u_2);
+//		printf("adc1 u_1: %f V, u_2: %f V\r\n", u_1, u_2);
+		rt_thread_mdelay(1000);
 
 
 	//	rt_kprintf("rt-thread is run in while!\r\n");

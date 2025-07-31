@@ -32,13 +32,13 @@ extern   "C"
 /*----------------------------------------------------------------------------*
 **                             Mcaro Definitions                              *
 **----------------------------------------------------------------------------*/
+//**rt_dbg**//
 //#define RT_MAIN_DEBUG (宏定义可以放在其他地方) 有此宏定义表示打印LOG信息，否仅打印LOG_E信息。
-#define DBG_COLOR		//开启带颜色LOG输出
+#define RT_AS5047P_DEBUG  
+//#define DBG_COLOR		//开启带颜色LOG输出
 
-
-
- 
-//#define SUPPORT_LOG
+//**printf**//
+#define SUPPORT_LOG
 #ifdef SUPPORT_LOG
     #define LOG_P(...) printf(__VA_ARGS__);
 #else
