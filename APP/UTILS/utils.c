@@ -1,21 +1,19 @@
 /****************************************************************************
  *
- * File Name：                             
+ * File Name:
  *  
- * Author：
+ *    Author:
  *  
- * Date：
+ *      Date:
  * 
  * Descriptions:
  * 
  *
  ******************************************************************************/
- #ifndef __AS5047P_H__
-#define __AS5047P_H__
 /*----------------------------------------------------------------------------*
 **                             Dependencies                                   *
 **----------------------------------------------------------------------------*/
-#include <stdint.h>
+#include "utils.h"
 
 /**---------------------------------------------------------------------------*
  **                            Debugging Flag                                 *
@@ -33,54 +31,6 @@ extern   "C"
 **                             Mcaro Definitions                              *
 **----------------------------------------------------------------------------*/
 
-/* 易失性寄存器地址宏 */
-#define AS5047P_NOP       0x0000    // 无操作指令
-#define AS5047P_ERRFL     0x0001    // 错误标志寄存器（读取后自动清零）
-#define AS5047P_PROG      0x0003    // OTP编程控制寄存器
-#define AS5047P_DIAAGC    0x3FFC    // 诊断与自动增益控制
-#define AS5047P_MAG       0x3FFD    // CORDIC计算的磁场幅值
-#define AS5047P_ANGLEUNC  0x3FFE    // 未补偿的原始角度
-#define AS5047P_ANGLECOM  0x3FFF    // 动态补偿后的角度（默认读取）
-
-/* ERRFL (0x0001) 错误标志位 */
-#define AS5047P_ERRFL_PARERR   (1 << 2)  // SPI命令帧奇偶校验错误
-#define AS5047P_ERRFL_INVCOMM  (1 << 1)  // 无效寄存器地址访问
-#define AS5047P_ERRFL_FRERR    (1 << 0)  // SPI帧格式错误
-
-/* DIAAGC (0x3FFC) 诊断与AGC状态 */
-#define AS5047P_DIAAGC_MAGH    (1 << 11)  // 磁场过强（AGC=0x00）
-#define AS5047P_DIAAGC_MAGL    (1 << 10)  // 磁场过弱（AGC=0xFF）
-#define AS5047P_DIAAGC_COF     (1 << 9)   // CORDIC运算溢出
-#define AS5047P_DIAAGC_LF      (1 << 8)   // 偏移补偿完成标志
-#define AS5047P_DIAAGC_AGC_MASK 0x00FF    // AGC值掩码（bit7~0）
-
-/* 角度数据掩码（14位有效数据） */
-#define AS5047P_ANGLE_MASK     0x3FFF    // 用于ANGLECOM/ANGLEUNC
-
-/* 非易失性寄存器地址宏 */
-/* AS5047P非易失性寄存器地址宏定义（OTP一次性可编程寄存器） */
-#define AS5047P_ZPOSM    0x0016  // 零位校准值高字节寄存器（14位绝对零位的高8位）
-                                // 与ZPOSL组合设置机械零位，写入后需固化到OTP存储器
-#define AS5047P_ZPOSL    0x0017  // 零位校准值低字节寄存器（14位绝对零位的低6位）
-                                // 注意：零位校准值写入后需通过OTP编程永久保存，仅能烧写一次
-
-#define AS5047P_SETTINGS1 0x0018 // 配置寄存器1，功能包括：
-                                // - 禁用动态角度误差补偿(DAEC)
-                                // - 选择ABI输出模式（二进制/十进制）
-                                // - 设置PWM输出极性
-#define AS5047P_SETTINGS2 0x0019 // 配置寄存器2，功能包括：
-                                // - 设置ABI分辨率（100-4096步/转）
-                                // - 配置UVW极对数（电机极对数）
-                                // - 启用滞后补偿
-                                // 注意：修改后需执行OTP编程才能永久生效
-
-/* ZPOSL磁场诊断使能位 */
-#define AS5047P_ZPOSL_MAGH_EN (1 << 15)  // 过强使能
-#define AS5047P_ZPOSL_MAGL_EN (1 << 14)  // 过弱使能
-#define AS5047P_ZPOSL_COF_EN  (1 << 13)  // CORDIC溢出使能
-
-#define AS5047P_CS_L    HAL_GPIO_WritePin(GPIOB, GPIO_PIN_3, GPIO_PIN_RESET)  // CS低电平
-#define AS5047P_CS_H    HAL_GPIO_WritePin(GPIOB, GPIO_PIN_3, GPIO_PIN_SET)    // CS高电平
 /*----------------------------------------------------------------------------*
 **                             Data Structures                                *
 **----------------------------------------------------------------------------*/
@@ -121,7 +71,6 @@ extern   "C"
  **---------------------------------------------------------------------------*/
 #ifdef   __cplusplus
 }
-#endif  
-// End of __cplusplus
-#endif  
-// End of xxx.H
+#endif
+// End of xxx.c
+

@@ -27,48 +27,22 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include "stdio.h"
-#include "math.h"
-#include "as5047p.h"
-#include "string.h"
+
+
+#define RT_MAIN_DEBUG
+#define DBG_TAG               "mian"    //dbg的表头
+#ifdef RT_MAIN_DEBUG                    //dbg宏定义
+#define DBG_LVL               DBG_LOG
+#else
+#define DBG_LVL               DBG_ERROR
+#endif
+#include <rtdbg.h>						 //dbg头文件
+
 
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
 /* USER CODE BEGIN PTD */
-#define Polar 7     //极对数
-#define PI 3.14159265358979f
-#define _2PI 6.28318530717958f
-
-uint16_t as5047_rx_data;
-unsigned char angle_mon_flag,angle_start_mon;///初始角度记录
-#define rotor_phy_angle (angle - angle_start_mon)     // 转子物理角度
-#define rotor_logic_angle rotor_phy_angle * Polar          // 转子多圈角度  极对数
-#define _constrain(amt,low,high) ((amt)<(low)?(low):((amt)>(high)?(high):(amt)))
-
-float u_1,u_2;
-
-/* USER CODE END PTD */
-
-/* Private define ------------------------------------------------------------*/
-/* USER CODE BEGIN PD */
-
-/* USER CODE END PD */
-
-/* Private macro -------------------------------------------------------------*/
-/* USER CODE BEGIN PM */
-
-/* USER CODE END PM */
-
-/* Private variables ---------------------------------------------------------*/
-
-/* USER CODE BEGIN PV */
-float angle;
-uint16_t as5047_rx_data;
-float angle_add,angle_Multi,angle_mon;////多圈角度变量
-
-
-
 #ifdef __GNUC__
  #define PUTCHAR_PROTOTYPE int __io_putchar(int ch)
  #else
@@ -79,7 +53,23 @@ float angle_add,angle_Multi,angle_mon;////多圈角度变量
  HAL_UART_Transmit(&huart4 , (uint8_t *)&ch, 1, 0xFFFF);
  return ch;
  }
- 
+
+float u_1,u_2;
+
+/* USER CODE END PTD */
+
+/* Private define ------------------------------------------------------------*/
+/* USER CODE BEGIN PD */
+/* USER CODE END PD */
+
+/* Private macro -------------------------------------------------------------*/
+/* USER CODE BEGIN PM */
+
+/* USER CODE END PM */
+
+/* Private variables ---------------------------------------------------------*/
+
+/* USER CODE BEGIN PV */
 
 
 /* USER CODE END PV */
@@ -103,7 +93,7 @@ int main(void)
 {
 
   /* USER CODE BEGIN 1 */
-
+	int result;
   /* USER CODE END 1 */
 
   /* MCU Configuration--------------------------------------------------------*/
@@ -129,30 +119,42 @@ int main(void)
   MX_SPI3_Init();
   MX_UART4_Init();
   MX_TIM2_Init();
+  MX_ADC2_Init();
+  MX_ADC3_Init();
+  MX_TIM1_Init();
   /* USER CODE BEGIN 2 */
 	HAL_TIM_Base_Start(&htim2);  // 启动定时器
   HAL_ADC_Start(&hadc1);  // 启动ADC  
   HAL_ADCEx_InjectedStart_IT(&hadc1);
-
-	 AS5047P_CS_L;  // 设置CS低电平开始通信
-
-  HAL_SPI_TransmitReceive_DMA(&hspi3, (uint8_t *)0x7fff,(uint8_t *)&as5047_rx_data,2);  // 启动SPI接收
-
-  angle_mon_flag=1;
+//		result = init_motor_control();
+//				if( result == RT_EOK)
+//		{
+//			LOG_D("motor is init \r\n");
+//		}else
+//		{
+//			LOG_E("motor is init faild \r\n");
+//		}
+		
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
+	LOG_P("rt-thread is runing!\r\n");
+		
+		as5047_start();	
   while (1)
   {
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-   // printf("Angle: %f radians, Multi-turn angle: %f radians\n", angle, angle_Multi);
-   // printf("system running...\n");
-   // HAL_Delay(1000);  // 延时1秒
-		printf("Angle: %f radians, Multi-turn angle: %f radians\r\n", angle, angle_Multi);
+		LOG_P("Angle: %f radians, Multi-turn angle: %f radians\r\n", angle, angle_Multi);
+		LOG_P("Angle: %f radians, Multi-turn angle: %f radians\r\n", angle, angle_Multi);
     printf("adc1 u_1: %f V, u_2: %f V\r\n", u_1, u_2);
+		printf("adc1 u_1: %f V, u_2: %f V\r\n", u_1, u_2);
+		rt_thread_mdelay(100);
+
+
+	//	rt_kprintf("rt-thread is run in while!\r\n");
   }
   /* USER CODE END 3 */
 }
@@ -179,7 +181,7 @@ void SystemClock_Config(void)
   RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
   RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
   RCC_OscInitStruct.PLL.PLLM = 4;
-  RCC_OscInitStruct.PLL.PLLN = 168;
+  RCC_OscInitStruct.PLL.PLLN = 84;
   RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV2;
   RCC_OscInitStruct.PLL.PLLQ = 4;
   if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
@@ -193,10 +195,10 @@ void SystemClock_Config(void)
                               |RCC_CLOCKTYPE_PCLK1|RCC_CLOCKTYPE_PCLK2;
   RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
   RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
-  RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV4;
+  RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV2;
   RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV2;
 
-  if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_5) != HAL_OK)
+  if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_2) != HAL_OK)
   {
     Error_Handler();
   }
@@ -204,50 +206,57 @@ void SystemClock_Config(void)
 
 /* USER CODE BEGIN 4 */
 
-//** callback function **//
-void HAL_SPI_TxRxCpltCallback(SPI_HandleTypeDef *hspi)
-{
-  // Transmission complete callback
-  if (hspi->Instance == SPI3)
-  {
-    // Handle SPI3 transmission complete
-    AS5047P_CS_H;  // Set CS high to end transmission
-  //  printf("SPI3 Transmission Complete\n");
-   as5047_rx_data = as5047_rx_data & 0x3FFF;  // Mask to get 14-bit angle data
-   angle = _2PI * as5047_rx_data / 0x3FFF;  // Convert to angle in radians 
-   if (angle_mon_flag == 1)  // If angle monitoring is enabled
-   {
-     angle_start_mon = angle;  // Record the initial angle
-     angle_mon_flag = 0;  // Reset the flag
-   //  printf("Initial angle recorded: %f radians\n", angle_start_mon);        
-   }
-   float angle_deff = (float)as5047_rx_data - angle_mon;  // Calculate angle difference
-   if(abs(angle_deff) > (0.8*16383))  // If angle difference exceeds threshold
-   {
-     angle_add += (angle_deff > 0) ? -_2PI : _2PI;  // Adjust angle_add based on direction
-   } 
-   angle_mon = as5047_rx_data;
-   angle_Multi = angle_add + angle;  // Calculate the multi-turn angle
- //  printf("Angle: %f radians, Multi-turn angle: %f radians\n", angle);
 
-   AS5047P_CS_L;  // Set CS low to start next transmission
-   HAL_SPI_TransmitReceive_DMA(&hspi3, (uint8_t *)0x7fff,(uint8_t *)&as5047_rx_data,2);  // 启动SPI接收
-  // printf("Next spi Transmit\n");
-	}
-}
+//void HAL_SPI_RxCpltCallback(SPI_HandleTypeDef *hspi)
+//{
+//	 if (hspi->Instance == SPI3)
+//	 {
+//	//drv8301_reg1_rx_data  = drv8301_reg1_rx_data & DRV8301_DATA_MASK;
+
+//	printf("drv8301_reg1_rx_data is %x /r/n",drv8301_reg1_rx_data);
+//		 
+//	printf("drv8301_reg2_rx_data is %x /r/n",drv8301_reg2_rx_data);
+
+//	DRV8301_CS_H;
+//	 }
+//	
+//}
 
 
-void HAL_ADCEx_InjectedConvCpltCallback(ADC_HandleTypeDef *hadc)
-{
-  if (hadc->Instance == ADC1)  
-  {   
-    u_1 = 3.3f * (float)hadc->Instance->JDR1 / (1<<12);  // Convert ADC value to voltage
-    u_2 = 3.3f * (float)hadc->Instance->JDR2 / (1<<12);  // Convert ADC value to voltage
-  }
-  
-}
+
+//void HAL_ADCEx_InjectedConvCpltCallback(ADC_HandleTypeDef *hadc)
+//{
+//  if (hadc->Instance == ADC1)  
+//  {   
+//    u_1 = 3.3f * (float)hadc->Instance->JDR1 / (1<<12);  // Convert ADC value to voltage
+//    u_2 = 3.3f * (float)hadc->Instance->JDR2 / (1<<12);  // Convert ADC value to voltage
+//  }
+//  
+//}
 
 /* USER CODE END 4 */
+
+/**
+  * @brief  Period elapsed callback in non blocking mode
+  * @note   This function is called  when TIM14 interrupt took place, inside
+  * HAL_TIM_IRQHandler(). It makes a direct call to HAL_IncTick() to increment
+  * a global variable "uwTick" used as application time base.
+  * @param  htim : TIM handle
+  * @retval None
+  */
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
+{
+  /* USER CODE BEGIN Callback 0 */
+
+  /* USER CODE END Callback 0 */
+  if (htim->Instance == TIM14)
+  {
+    HAL_IncTick();
+  }
+  /* USER CODE BEGIN Callback 1 */
+
+  /* USER CODE END Callback 1 */
+}
 
 /**
   * @brief  This function is executed in case of error occurrence.
