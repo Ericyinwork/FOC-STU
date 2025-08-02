@@ -37,7 +37,7 @@
 #define DBG_LVL               DBG_ERROR
 #endif
 #include <rtdbg.h>						 //dbg头文件
-
+	float result=0;
 
 /* USER CODE END Includes */
 
@@ -54,8 +54,6 @@
  return ch;
  }
 
-float u_1,u_2;
-
 /* USER CODE END PTD */
 
 /* Private define ------------------------------------------------------------*/
@@ -70,7 +68,6 @@ float u_1,u_2;
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
-
 
 /* USER CODE END PV */
 
@@ -93,7 +90,7 @@ int main(void)
 {
 
   /* USER CODE BEGIN 1 */
-	int result;
+
   /* USER CODE END 1 */
 
   /* MCU Configuration--------------------------------------------------------*/
@@ -122,43 +119,52 @@ int main(void)
   MX_ADC2_Init();
   MX_ADC3_Init();
   MX_TIM1_Init();
+  MX_TIM5_Init();
+  MX_TIM13_Init();
   /* USER CODE BEGIN 2 */
-	HAL_TIM_Base_Start(&htim2);  // 启动定时器
-  HAL_ADC_Start(&hadc1);  // 启动ADC  
-  HAL_ADCEx_InjectedStart_IT(&hadc1);
-		result = init_motor_control();
-				if( result == RT_EOK)
-		{
-			LOG_D("motor is init \r\n");
-		}else
-		{
-			LOG_E("motor is init faild \r\n");
-		}
-		
+
+	init_motor_control();		//配置是否成功待验证
+		HAL_GPIO_WritePin(EN_GATE_GPIO_Port,EN_GATE_Pin, GPIO_PIN_SET);
+		pwm_start();
+//		adc_inject_it();		
+
+		rt_thread_mdelay(10);
+//					/////零点////////
+//	__HAL_TIM_SET_COMPARE(&htim1 ,TIM_CHANNEL_1 ,(int)(2125*0.05));
+//	__HAL_TIM_SET_COMPARE(&htim1 ,TIM_CHANNEL_2 ,(int)(2125*0));
+//	__HAL_TIM_SET_COMPARE(&htim1 ,TIM_CHANNEL_3 ,(int)(2125*0));	
+	  angle_mon_flag=1;
+		as5047_start();	
+	rt_thread_mdelay(400);
+	__HAL_TIM_SET_COMPARE(&htim1 ,TIM_CHANNEL_1 ,(int)(2125*0));
+	__HAL_TIM_SET_COMPARE(&htim1 ,TIM_CHANNEL_2 ,(int)(2125*0));
+	__HAL_TIM_SET_COMPARE(&htim1 ,TIM_CHANNEL_3 ,(int)(2125*0));
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-	LOG_P("rt-thread is runing!\r\n");
+//	LOG_D("rt-thread is runing!\r\n");		
 
-		
 	rt_thread_mdelay(100);	
-	as5047_start();	
+
+	
+
+
   while (1)
   {
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-//		LOG_P("Angle: %f radians, Multi-turn angle: %f radians\r\n", angle, angle_Multi);
-//		LOG_P("Angle: %d radians, Multi-turn angle: %d radians\r\n", angle, angle_Multi);
-//		LOG_D("Angle: %d radians, Multi-turn angle: %d radians\r\n", angle, angle_Multi);
-		LOG_D("Angle: %d radians, Multi-turn angle: %d radians\r\n", angle, angle_Multi);
-//    printf("adc1 u_1: %f V, u_2: %f V\r\n", u_1, u_2);
-//		printf("adc1 u_1: %f V, u_2: %f V\r\n", u_1, u_2);
+//	__HAL_TIM_SET_COMPARE(&htim1 ,TIM_CHANNEL_1 ,(int)(2125*0.2));
+//	__HAL_TIM_SET_COMPARE(&htim1 ,TIM_CHANNEL_2 ,(int)(2125*0.2));
+//	__HAL_TIM_SET_COMPARE(&htim1 ,TIM_CHANNEL_3 ,(int)(2125*0.2));
+//			as5047_start();	
+		
+		
+		SVPWM_SET_OUT(angle_Multi * 7,0,result);	
+//angle_Multi+= 0.1;
+//if(angle_Multi>6.28)	angle_Multi=0;	
 		rt_thread_mdelay(1000);
-
-
-	//	rt_kprintf("rt-thread is run in while!\r\n");
   }
   /* USER CODE END 3 */
 }
@@ -185,7 +191,7 @@ void SystemClock_Config(void)
   RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
   RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
   RCC_OscInitStruct.PLL.PLLM = 4;
-  RCC_OscInitStruct.PLL.PLLN = 84;
+  RCC_OscInitStruct.PLL.PLLN = 168;
   RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV2;
   RCC_OscInitStruct.PLL.PLLQ = 4;
   if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
@@ -199,44 +205,16 @@ void SystemClock_Config(void)
                               |RCC_CLOCKTYPE_PCLK1|RCC_CLOCKTYPE_PCLK2;
   RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
   RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
-  RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV2;
+  RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV4;
   RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV2;
 
-  if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_2) != HAL_OK)
+  if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_5) != HAL_OK)
   {
     Error_Handler();
   }
 }
 
 /* USER CODE BEGIN 4 */
-
-
-//void HAL_SPI_RxCpltCallback(SPI_HandleTypeDef *hspi)
-//{
-//	 if (hspi->Instance == SPI3)
-//	 {
-//	//drv8301_reg1_rx_data  = drv8301_reg1_rx_data & DRV8301_DATA_MASK;
-
-//	printf("drv8301_reg1_rx_data is %x /r/n",drv8301_reg1_rx_data);
-//		 
-//	printf("drv8301_reg2_rx_data is %x /r/n",drv8301_reg2_rx_data);
-
-//	DRV8301_CS_H;
-//	 }
-//	
-//}
-
-
-
-//void HAL_ADCEx_InjectedConvCpltCallback(ADC_HandleTypeDef *hadc)
-//{
-//  if (hadc->Instance == ADC1)  
-//  {   
-//    u_1 = 3.3f * (float)hadc->Instance->JDR1 / (1<<12);  // Convert ADC value to voltage
-//    u_2 = 3.3f * (float)hadc->Instance->JDR2 / (1<<12);  // Convert ADC value to voltage
-//  }
-//  
-//}
 
 /* USER CODE END 4 */
 
@@ -251,14 +229,46 @@ void SystemClock_Config(void)
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
   /* USER CODE BEGIN Callback 0 */
-
+//SVPWM_SET_OUT(angle_Multi * 7,0,0.2);	
   /* USER CODE END Callback 0 */
   if (htim->Instance == TIM14)
   {
     HAL_IncTick();
   }
   /* USER CODE BEGIN Callback 1 */
-
+	if(htim->Instance==TIM13)
+	{
+		static float angle_mon_last=0;
+		static char once=1;
+		if(once==1)
+		{
+			angle_mon_last=angle;
+			once=0;
+		}
+		angle_diff = cycle_diff(angle - angle_mon_last, PI*2);
+		angle_mon_last=angle;
+		motor_speed=angle_diff/0.001f;	
+		for(int i=1;i<lenth;i++)
+		{
+			data_mon[i-1]=data_mon[i];
+		}data_mon[lenth-1]=motor_speed;
+		for(int i=0; i<lenth; i++) 
+		{
+			lvbo_data[i] = data_mon[i];
+		}
+		// 使用冒泡排序
+		for(int i=0; i<lenth-1; i++) {
+				for(int j=0; j<lenth-i-1; j++) {
+						if(lvbo_data[j] > lvbo_data[j+1]) {
+								float swap = lvbo_data[j];
+								lvbo_data[j] = lvbo_data[j+1];
+								lvbo_data[j+1] = swap;
+						}
+				}
+		}
+		motor_speed=lvbo_data[lenth/2];
+		motor_speed=Low_pass_filter(motor_speed,0.07);			
+	}
   /* USER CODE END Callback 1 */
 }
 

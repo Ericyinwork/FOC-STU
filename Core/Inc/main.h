@@ -41,6 +41,8 @@ extern "C" {
 
 #include "as5047p.h"
 #include "drv8301.h"
+#include "foc.h"
+#include "app.h"
 
 #include "utils.h"
 

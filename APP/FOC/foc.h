@@ -10,8 +10,8 @@
  * 
  *
  ******************************************************************************/
- #ifndef __UTILS_H__
-#define __UTILS_H__
+ #ifndef __FOC_H__
+#define __FOC_H__
 /*----------------------------------------------------------------------------*
 **                             Dependencies                                   *
 **----------------------------------------------------------------------------*/
@@ -32,31 +32,27 @@ extern   "C"
 /*----------------------------------------------------------------------------*
 **                             Mcaro Definitions                              *
 **----------------------------------------------------------------------------*/
-//**rt_dbg**//
-//#define RT_MAIN_DEBUG (宏定义可以放在其他地方) 有此宏定义表示打印LOG信息，否仅打印LOG_E信息。
-//#define RT_AS5047P_DEBUG  
-#define DBG_COLOR		//开启带颜色LOG输出
 
-//**printf**//
-#define SUPPORT_LOG
-#ifdef SUPPORT_LOG
-    #define LOG_P(...) printf(__VA_ARGS__);
-#else
-    #define LOG_P(...)
-#endif
-
-
-#define Polar 7     //极对数
-#define PI 3.14159265358979f
-#define _2PI 6.28318530717958f
 /*----------------------------------------------------------------------------*
 **                             Data Structures                                *
 **----------------------------------------------------------------------------*/
-
+typedef struct
+{
+	float position;
+	float speed;
+	float torque_d;
+	float torque_q;
+	
+}motor_control_value;
 /*----------------------------------------------------------------------------*
 **                             Local Vars                                     *
 **----------------------------------------------------------------------------*/
-
+float limit_min(float input,float lim);
+float limit_max(float input,float lim);
+void SVPWM(float phi, float d, float q, float *d_u, float *d_v, float *d_w);
+void SVPWM_SET_OUT(float angle_el,float Uq,float Ud);
+float Low_pass_filter(float input,float prop);
+float cycle_diff(float diff, float cycle);
 /*----------------------------------------------------------------------------*
 **                             Extern Function                                *
 **----------------------------------------------------------------------------*/
@@ -81,6 +77,8 @@ extern   "C"
 * History:
 *************************************************/
 
+extern motor_control_value motor_control;
+//void ADC_1();
 
 
 

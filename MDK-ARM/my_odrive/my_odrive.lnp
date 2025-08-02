@@ -34,6 +34,8 @@
 "my_odrive\as5047p.o"
 "my_odrive\drv8301.o"
 "my_odrive\utils.o"
+"my_odrive\foc.o"
+"my_odrive\app.o"
 "my_odrive\device.o"
 "my_odrive\cmd.o"
 "my_odrive\msh.o"
@@ -59,6 +61,7 @@
 "my_odrive\thread.o"
 "my_odrive\timer.o"
 "my_odrive\board.o"
+"../Middlewares/ST/ARM/DSP/Lib/arm_cortexM4lf_math.lib"
 --library_type=microlib --strict --scatter "my_odrive\my_odrive.sct"
 --summary_stderr --info summarysizes --map --load_addr_map_info --xref --callgraph --symbols
 --info sizes --info totals --info unused --info veneers

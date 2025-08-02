@@ -64,7 +64,7 @@ DRV_SPI_8301_Vars_t Vars;
 			DRV8301_SetUp(&hdrv8301,&Vars);
 			DRV8301_writeData(&hdrv8301,&Vars);
 			DRV8301_readData(&hdrv8301,&Vars);
-
+			HAL_GPIO_WritePin(EN_GATE_GPIO_Port,EN_GATE_Pin, GPIO_PIN_SET);
 			return RT_EOK;
 		}
 		

@@ -16,6 +16,7 @@
 #include "as5047p.h"
 #include "dma.h"
 #include "utils.h"
+
 /**---------------------------------------------------------------------------*
  **                            Debugging Flag                                 *
  **---------------------------------------------------------------------------*/
@@ -44,16 +45,14 @@ extern   "C"
 #define _2PI 6.28318530717958f
 
 
-uint16_t as5047_rx_data;
-unsigned char angle_mon_flag,angle_start_mon;///初始角度记录
+
 #define rotor_phy_angle (angle - angle_start_mon)     // 转子物理角度
 #define rotor_logic_angle rotor_phy_angle * Polar          // 转子多圈角度  极对数
 #define _constrain(amt,low,high) ((amt)<(low)?(low):((amt)>(high)?(high):(amt)))
 
-float angle;
-uint16_t as5047_rx_data;
-float angle_add,angle_Multi,angle_mon;////多圈角度变量
-unsigned char angle_mon_flag;
+#define abs(x) ((x)>0?(x):-(x))
+
+
 
 /*----------------------------------------------------------------------------*
 **                             Data Structures                                *
@@ -62,8 +61,10 @@ unsigned char angle_mon_flag;
 /*----------------------------------------------------------------------------*
 **                             Local Vars                                     *
 **----------------------------------------------------------------------------*/
-
-
+float angle;
+uint16_t as5047_rx_data;
+float angle_add,angle_Multi,angle_mon;////多圈角度变量
+unsigned char angle_mon_flag,angle_start_mon;///初始角度记录
 
 
 /*----------------------------------------------------------------------------*
@@ -87,9 +88,9 @@ void as5047_start(void)
 	AS5047P_CS_H;
 	rt_thread_mdelay(1);
 	AS5047P_CS_L;  // 设置CS低电平开始通信
-//	rt_thread_mdelay(1);
+	rt_thread_mdelay(10);
   HAL_SPI_TransmitReceive_DMA(&hspi3, (uint8_t *)0x7ffff,(uint8_t *)&as5047_rx_data,2);  // 启动SPI接收
-  angle_mon_flag=1;
+
 }
 
 
@@ -127,8 +128,12 @@ void HAL_SPI_TxRxCpltCallback(SPI_HandleTypeDef *hspi)
    angle_Multi = angle_add + angle;  // Calculate the multi-turn angle
 	// LOG_D("Angle: %f radians, Multi-turn angle: %d radians\r\n", angle);
 
-   AS5047P_CS_L;  // Set CS low to start next transmission
+
    HAL_SPI_TransmitReceive_DMA(&hspi3, (uint8_t *)0x7fff,(uint8_t *)&as5047_rx_data,2);  // 启动SPI接收
+	 
+	 AS5047P_CS_L;  // Set CS low to start next transmission
+	 
+
 	// LOG_D("Next spi Transmit!\r\n");
 	}
 }

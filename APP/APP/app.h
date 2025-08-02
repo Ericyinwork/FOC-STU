@@ -10,8 +10,8 @@
  * 
  *
  ******************************************************************************/
- #ifndef __UTILS_H__
-#define __UTILS_H__
+ #ifndef __APP_H__
+#define __APP_H__
 /*----------------------------------------------------------------------------*
 **                             Dependencies                                   *
 **----------------------------------------------------------------------------*/
@@ -32,23 +32,9 @@ extern   "C"
 /*----------------------------------------------------------------------------*
 **                             Mcaro Definitions                              *
 **----------------------------------------------------------------------------*/
-//**rt_dbg**//
-//#define RT_MAIN_DEBUG (宏定义可以放在其他地方) 有此宏定义表示打印LOG信息，否仅打印LOG_E信息。
-//#define RT_AS5047P_DEBUG  
-#define DBG_COLOR		//开启带颜色LOG输出
 
-//**printf**//
-#define SUPPORT_LOG
-#ifdef SUPPORT_LOG
-    #define LOG_P(...) printf(__VA_ARGS__);
-#else
-    #define LOG_P(...)
-#endif
-
-
-#define Polar 7     //极对数
-#define PI 3.14159265358979f
-#define _2PI 6.28318530717958f
+////中值滤波////
+#define lenth 3
 /*----------------------------------------------------------------------------*
 **                             Data Structures                                *
 **----------------------------------------------------------------------------*/
@@ -56,7 +42,10 @@ extern   "C"
 /*----------------------------------------------------------------------------*
 **                             Local Vars                                     *
 **----------------------------------------------------------------------------*/
-
+extern float data_mon[lenth];
+extern float lvbo_data[lenth];
+extern float angle_diff;
+extern float motor_speed;
 /*----------------------------------------------------------------------------*
 **                             Extern Function                                *
 **----------------------------------------------------------------------------*/
@@ -80,7 +69,15 @@ extern   "C"
 * Parameter:
 * History:
 *************************************************/
+int pwm_start(void);
 
+int adc_inject_it(void);
+
+void set_motor_pid(  //////PID参数   位置  速度  力矩 PID调节
+float position_p, float position_i, float position_d,
+float speed_p, float speed_i, float speed_d,
+float torque_d_p, float torque_d_i, float torque_d_d,
+float torque_q_p, float torque_q_i, float torque_q_d);
 
 
 
