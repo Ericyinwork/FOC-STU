@@ -1,0 +1,26 @@
+--cpu Cortex-M3
+"bldc_drive_test_0\startup_stm32f103xb.o"
+"bldc_drive_test_0\main.o"
+"bldc_drive_test_0\gpio.o"
+"bldc_drive_test_0\tim.o"
+"bldc_drive_test_0\stm32f1xx_it.o"
+"bldc_drive_test_0\stm32f1xx_hal_msp.o"
+"bldc_drive_test_0\foc_kernal.o"
+"bldc_drive_test_0\stm32f1xx_hal_gpio_ex.o"
+"bldc_drive_test_0\stm32f1xx_hal_tim.o"
+"bldc_drive_test_0\stm32f1xx_hal_tim_ex.o"
+"bldc_drive_test_0\stm32f1xx_hal.o"
+"bldc_drive_test_0\stm32f1xx_hal_rcc.o"
+"bldc_drive_test_0\stm32f1xx_hal_rcc_ex.o"
+"bldc_drive_test_0\stm32f1xx_hal_gpio.o"
+"bldc_drive_test_0\stm32f1xx_hal_dma.o"
+"bldc_drive_test_0\stm32f1xx_hal_cortex.o"
+"bldc_drive_test_0\stm32f1xx_hal_pwr.o"
+"bldc_drive_test_0\stm32f1xx_hal_flash.o"
+"bldc_drive_test_0\stm32f1xx_hal_flash_ex.o"
+"bldc_drive_test_0\stm32f1xx_hal_exti.o"
+"bldc_drive_test_0\system_stm32f1xx.o"
+--library_type=microlib --strict --scatter "BLDC_drive_test_0\BLDC_drive_test_0.sct"
+--summary_stderr --info summarysizes --map --load_addr_map_info --xref --callgraph --symbols
+--info sizes --info totals --info unused --info veneers
+--list "BLDC_drive_test_0.map" -o BLDC_drive_test_0\BLDC_drive_test_0.axf

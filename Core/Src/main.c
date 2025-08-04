@@ -18,31 +18,28 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
-#include "adc.h"
-#include "dma.h"
-#include "spi.h"
 #include "tim.h"
 #include "usart.h"
 #include "gpio.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
-
-#define RT_MAIN_DEBUG
-#define DBG_TAG               "mian"    //dbg的表头
-#ifdef RT_MAIN_DEBUG                    //dbg宏定义
-#define DBG_LVL               DBG_LOG
-#else
-#define DBG_LVL               DBG_ERROR
-#endif
-#include <rtdbg.h>						 //dbg头文件
-	float result=0;
+#include "stdio.h"
 
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
 /* USER CODE BEGIN PTD */
+
+/* USER CODE END PTD */
+
+/* Private define ------------------------------------------------------------*/
+/* USER CODE BEGIN PD */
+
+/* USER CODE END PD */
+
+/* Private macro -------------------------------------------------------------*/
+/* USER CODE BEGIN PM */
 #ifdef __GNUC__
  #define PUTCHAR_PROTOTYPE int __io_putchar(int ch)
  #else
@@ -50,24 +47,18 @@
  #endif
  PUTCHAR_PROTOTYPE
  {
- HAL_UART_Transmit(&huart4 , (uint8_t *)&ch, 1, 0xFFFF);
+ HAL_UART_Transmit(&huart4 , (uint8_t *)&ch, 1, 0xFFFF);  //ʹ�õĴ���handle
  return ch;
- }
-
-/* USER CODE END PTD */
-
-/* Private define ------------------------------------------------------------*/
-/* USER CODE BEGIN PD */
-/* USER CODE END PD */
-
-/* Private macro -------------------------------------------------------------*/
-/* USER CODE BEGIN PM */
-
+ } 
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
+ void setPhaseVoltage(float Uq, float Ud, float angle_el);
+ 
+ extern float voltage_power_supply;
+ float q=0.5;
 
 /* USER CODE END PV */
 
@@ -90,7 +81,7 @@ int main(void)
 {
 
   /* USER CODE BEGIN 1 */
-
+	float angle_el=1;
   /* USER CODE END 1 */
 
   /* MCU Configuration--------------------------------------------------------*/
@@ -111,60 +102,36 @@ int main(void)
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
-  MX_DMA_Init();
-  MX_ADC1_Init();
-  MX_SPI3_Init();
   MX_UART4_Init();
-  MX_TIM2_Init();
-  MX_ADC2_Init();
-  MX_ADC3_Init();
   MX_TIM1_Init();
-  MX_TIM5_Init();
-  MX_TIM13_Init();
   /* USER CODE BEGIN 2 */
+	HAL_GPIO_WritePin(EN_GATE_GPIO_Port, EN_GATE_Pin, GPIO_PIN_SET);
+	
+		//输出6路PWM
+	HAL_TIM_PWM_Start(&htim1,TIM_CHANNEL_1);
+	HAL_TIM_PWM_Start(&htim1,TIM_CHANNEL_2);
+	HAL_TIM_PWM_Start(&htim1,TIM_CHANNEL_3);
+	HAL_TIMEx_PWMN_Start(&htim1,TIM_CHANNEL_1);
+	HAL_TIMEx_PWMN_Start(&htim1,TIM_CHANNEL_2);
+	HAL_TIMEx_PWMN_Start(&htim1,TIM_CHANNEL_3);
+	
+		voltage_power_supply=11;
 
-	init_motor_control();		//配置是否成功待验证
-		HAL_GPIO_WritePin(EN_GATE_GPIO_Port,EN_GATE_Pin, GPIO_PIN_SET);
-		pwm_start();
-//		adc_inject_it();		
-
-		rt_thread_mdelay(10);
-//					/////零点////////
-//	__HAL_TIM_SET_COMPARE(&htim1 ,TIM_CHANNEL_1 ,(int)(2125*0.05));
-//	__HAL_TIM_SET_COMPARE(&htim1 ,TIM_CHANNEL_2 ,(int)(2125*0));
-//	__HAL_TIM_SET_COMPARE(&htim1 ,TIM_CHANNEL_3 ,(int)(2125*0));	
-	  angle_mon_flag=1;
-		as5047_start();	
-	rt_thread_mdelay(400);
-	__HAL_TIM_SET_COMPARE(&htim1 ,TIM_CHANNEL_1 ,(int)(2125*0));
-	__HAL_TIM_SET_COMPARE(&htim1 ,TIM_CHANNEL_2 ,(int)(2125*0));
-	__HAL_TIM_SET_COMPARE(&htim1 ,TIM_CHANNEL_3 ,(int)(2125*0));
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-//	LOG_D("rt-thread is runing!\r\n");		
-
-	rt_thread_mdelay(100);	
-
-	
-
-
   while (1)
   {
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-//	__HAL_TIM_SET_COMPARE(&htim1 ,TIM_CHANNEL_1 ,(int)(2125*0.2));
-//	__HAL_TIM_SET_COMPARE(&htim1 ,TIM_CHANNEL_2 ,(int)(2125*0.2));
-//	__HAL_TIM_SET_COMPARE(&htim1 ,TIM_CHANNEL_3 ,(int)(2125*0.2));
-//			as5047_start();	
+				angle_el=angle_el+0.01;              //估计电角度
 		
+		setPhaseVoltage(q,0,angle_el );    //uq<1.2最好，免得被烧，仅验证开环
 		
-		SVPWM_SET_OUT(angle_Multi * 7,0,result);	
-//angle_Multi+= 0.1;
-//if(angle_Multi>6.28)	angle_Multi=0;	
-		rt_thread_mdelay(1000);
+
+//		if (angle_el > 6.2)angle_el=0;
   }
   /* USER CODE END 3 */
 }
@@ -186,11 +153,12 @@ void SystemClock_Config(void)
   /** Initializes the RCC Oscillators according to the specified parameters
   * in the RCC_OscInitTypeDef structure.
   */
-  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE;
-  RCC_OscInitStruct.HSEState = RCC_HSE_ON;
+  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI;
+  RCC_OscInitStruct.HSIState = RCC_HSI_ON;
+  RCC_OscInitStruct.HSICalibrationValue = RCC_HSICALIBRATION_DEFAULT;
   RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
-  RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
-  RCC_OscInitStruct.PLL.PLLM = 4;
+  RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSI;
+  RCC_OscInitStruct.PLL.PLLM = 8;
   RCC_OscInitStruct.PLL.PLLN = 168;
   RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV2;
   RCC_OscInitStruct.PLL.PLLQ = 4;
@@ -229,46 +197,14 @@ void SystemClock_Config(void)
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
   /* USER CODE BEGIN Callback 0 */
-//SVPWM_SET_OUT(angle_Multi * 7,0,0.2);	
+
   /* USER CODE END Callback 0 */
   if (htim->Instance == TIM14)
   {
     HAL_IncTick();
   }
   /* USER CODE BEGIN Callback 1 */
-	if(htim->Instance==TIM13)
-	{
-		static float angle_mon_last=0;
-		static char once=1;
-		if(once==1)
-		{
-			angle_mon_last=angle;
-			once=0;
-		}
-		angle_diff = cycle_diff(angle - angle_mon_last, PI*2);
-		angle_mon_last=angle;
-		motor_speed=angle_diff/0.001f;	
-		for(int i=1;i<lenth;i++)
-		{
-			data_mon[i-1]=data_mon[i];
-		}data_mon[lenth-1]=motor_speed;
-		for(int i=0; i<lenth; i++) 
-		{
-			lvbo_data[i] = data_mon[i];
-		}
-		// 使用冒泡排序
-		for(int i=0; i<lenth-1; i++) {
-				for(int j=0; j<lenth-i-1; j++) {
-						if(lvbo_data[j] > lvbo_data[j+1]) {
-								float swap = lvbo_data[j];
-								lvbo_data[j] = lvbo_data[j+1];
-								lvbo_data[j+1] = swap;
-						}
-				}
-		}
-		motor_speed=lvbo_data[lenth/2];
-		motor_speed=Low_pass_filter(motor_speed,0.07);			
-	}
+
   /* USER CODE END Callback 1 */
 }
 
