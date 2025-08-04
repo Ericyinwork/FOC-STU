@@ -126,9 +126,9 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-				angle_el=angle_el+0.01;              //估计电角度
+		angle_el=angle_el+0.01;              //估计电角度 原是0.1或0.08运行电机抖动，切换为0.01转起来了
 		
-		setPhaseVoltage(q,0,angle_el );    //uq<1.2最好，免得被烧，仅验证开环
+		setPhaseVoltage(q,0,angle_el );    //uq<1.2最好，免得被烧，仅验证开环，不要长时间运行开环。
 		
 
 //		if (angle_el > 6.2)angle_el=0;
