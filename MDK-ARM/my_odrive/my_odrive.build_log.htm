@@ -27,20 +27,11 @@ Project File Date:  08/05/2025
 <h2>Output:</h2>
 *** Using Compiler 'V5.06 update 7 (build 960)', folder: 'D:\Keil_v5\ARM\ARMCC\Bin'
 Build target 'my_odrive'
-compiling app.c...
-..\APP\APP\app.c(110): warning:  #177-D: variable "d"  was declared but never referenced
-      float d = 0;
-..\APP\APP\app.c(124): warning:  #177-D: variable "d"  was declared but never referenced
-      float d = 0;
-..\APP\APP\app.c(275): warning:  #1035-D: single-precision operand implicitly converted to double-precision
-       u_1 = 3.3f * ((float)hadc->Instance->JDR1/ ((1 << 12) - 1)-0.5);
-..\APP\APP\app.c(280): warning:  #1035-D: single-precision operand implicitly converted to double-precision
-  		u_2 = 3.3f * ((float)hadc->Instance->JDR1 / ((1 << 12) - 1)-0.5); 
-..\APP\APP\app.c: 4 warnings, 0 errors
+compiling main.c...
 linking...
-Program Size: Code=31178 RO-data=4230 RW-data=272 ZI-data=6568  
+Program Size: Code=8622 RO-data=450 RW-data=20 ZI-data=1868  
 FromELF: creating hex file...
-"my_odrive\my_odrive.axf" - 0 Error(s), 4 Warning(s).
+"my_odrive\my_odrive.axf" - 0 Error(s), 0 Warning(s).
 
 <h2>Software Packages used:</h2>
 
@@ -63,7 +54,7 @@ Package Vendor: Keil
 
    * Component: ARM::CMSIS:CORE:5.5.0
       Include file:  CMSIS\Core\Include\tz_context.h
-Build Time Elapsed:  00:00:02
+Build Time Elapsed:  00:00:01
 </pre>
 </body>
 </html>

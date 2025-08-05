@@ -31,20 +31,6 @@ extern "C" {
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include <string.h>
-#include <stdio.h>
-#include "math.h"
-
-#include "usart.h"
-
-#include "rtthread.h"
-
-#include "as5047p.h"
-#include "drv8301.h"
-#include "foc.h"
-#include "app.h"
-
-#include "utils.h"
 
 /* USER CODE END Includes */
 
@@ -71,19 +57,13 @@ void Error_Handler(void);
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
-#define TIM_1_8_PERIOD_CLOCKS 3500
+#define TIM_1_8_PERIOD_CLOCKS 2099
 #define TIM_APB1_CLOCK_HZ 84000000
 #define TIM_APB1_DEADTIME_CLOCKS 40
 #define TIM_APB1_PERIOD_CLOCKS 4096
 #define TIM_1_8_RCR 2
 #define TIM_1_8_DEADTIME_CLOCKS 20
 #define TIM_1_8_CLOCK_HZ 168000000
-#define M0_nCS_Pin GPIO_PIN_13
-#define M0_nCS_GPIO_Port GPIOC
-#define M0_IB_Pin GPIO_PIN_0
-#define M0_IB_GPIO_Port GPIOC
-#define M0_IC_Pin GPIO_PIN_1
-#define M0_IC_GPIO_Port GPIOC
 #define VBS_S_Pin GPIO_PIN_6
 #define VBS_S_GPIO_Port GPIOA
 #define M0_TEMP_Pin GPIO_PIN_5
@@ -102,8 +82,6 @@ void Error_Handler(void);
 #define M0_BH_GPIO_Port GPIOA
 #define M0_CH_Pin GPIO_PIN_10
 #define M0_CH_GPIO_Port GPIOA
-#define nFAULT_Pin GPIO_PIN_2
-#define nFAULT_GPIO_Port GPIOD
 #define AS5047P_CS_Pin GPIO_PIN_3
 #define AS5047P_CS_GPIO_Port GPIOB
 

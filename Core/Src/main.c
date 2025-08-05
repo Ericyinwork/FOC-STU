@@ -18,8 +18,6 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
-#include "adc.h"
-#include "dma.h"
 #include "spi.h"
 #include "tim.h"
 #include "usart.h"
@@ -27,37 +25,27 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include <rthw.h>
-
-#define RT_MAIN_DEBUG
-#define DBG_TAG               "mian"    //dbg的表头
-#ifdef RT_MAIN_DEBUG                    //dbg宏定义
-#define DBG_LVL               DBG_LOG
-#else
-#define DBG_LVL               DBG_ERROR
-#endif
-#include <rtdbg.h>						 //dbg头文件
-	float result=0.1;
 
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
 /* USER CODE BEGIN PTD */
-#ifdef __GNUC__
- #define PUTCHAR_PROTOTYPE int __io_putchar(int ch)
- #else
- #define PUTCHAR_PROTOTYPE int fputc(int ch, FILE *f)
- #endif
- PUTCHAR_PROTOTYPE
- {
- HAL_UART_Transmit(&huart4 , (uint8_t *)&ch, 1, 0xFFFF);
- return ch;
- }
+
+float duty = 0.1;
+#define delaym 10
 
 /* USER CODE END PTD */
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
+#define A0 	__HAL_TIM_SET_COMPARE(&htim1 ,TIM_CHANNEL_1 ,(int)(TIM_1_8_PERIOD_CLOCKS*0));	
+#define B0 	__HAL_TIM_SET_COMPARE(&htim1 ,TIM_CHANNEL_2 ,(int)(TIM_1_8_PERIOD_CLOCKS*0));	
+#define C0 	__HAL_TIM_SET_COMPARE(&htim1 ,TIM_CHANNEL_3 ,(int)(TIM_1_8_PERIOD_CLOCKS*0));	
+
+#define A1 	__HAL_TIM_SET_COMPARE(&htim1 ,TIM_CHANNEL_1 ,(int)(TIM_1_8_PERIOD_CLOCKS*duty));	
+#define B1 	__HAL_TIM_SET_COMPARE(&htim1 ,TIM_CHANNEL_2 ,(int)(TIM_1_8_PERIOD_CLOCKS*duty));	
+#define C1 	__HAL_TIM_SET_COMPARE(&htim1 ,TIM_CHANNEL_3 ,(int)(TIM_1_8_PERIOD_CLOCKS*duty));	
+
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -90,8 +78,6 @@ int main(void)
 {
 
   /* USER CODE BEGIN 1 */
-			    register rt_base_t level;
-	volatile float vo_angle;
 
   /* USER CODE END 1 */
 
@@ -101,6 +87,7 @@ int main(void)
   HAL_Init();
 
   /* USER CODE BEGIN Init */
+	
 
   /* USER CODE END Init */
 
@@ -113,66 +100,42 @@ int main(void)
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
-  MX_DMA_Init();
-  MX_ADC1_Init();
-  MX_SPI3_Init();
   MX_UART4_Init();
-  MX_TIM2_Init();
-  MX_ADC2_Init();
-  MX_ADC3_Init();
   MX_TIM1_Init();
-  MX_TIM5_Init();
-  MX_TIM13_Init();
+  MX_SPI3_Init();
   /* USER CODE BEGIN 2 */
-
-	init_motor_control();		//配置是否成功待验证
-		HAL_GPIO_WritePin(EN_GATE_GPIO_Port,EN_GATE_Pin, GPIO_PIN_SET);
-		pwm_start();
-		adc_inject_it();		
-
-		rt_thread_mdelay(10);
-//					/////零点////////
-	__HAL_TIM_SET_COMPARE(&htim1 ,TIM_CHANNEL_1 ,(int)(TIM_1_8_PERIOD_CLOCKS*0.05));
-	__HAL_TIM_SET_COMPARE(&htim1 ,TIM_CHANNEL_2 ,(int)(TIM_1_8_PERIOD_CLOCKS*0));
-	__HAL_TIM_SET_COMPARE(&htim1 ,TIM_CHANNEL_3 ,(int)(TIM_1_8_PERIOD_CLOCKS*0));	
-	  angle_mon_flag=1;
-		as5047_start();	
-	rt_thread_mdelay(400);
+	
+	HAL_GPIO_WritePin(EN_GATE_GPIO_Port,EN_GATE_Pin, GPIO_PIN_SET);//����DRV8301
+	
+	HAL_TIM_Base_Start (&htim1);
+	HAL_TIM_PWM_Start(&htim1 ,TIM_CHANNEL_1 );
+	HAL_TIM_PWM_Start(&htim1 ,TIM_CHANNEL_2 );
+	HAL_TIM_PWM_Start(&htim1 ,TIM_CHANNEL_3 );
+	HAL_TIMEx_PWMN_Start(&htim1,TIM_CHANNEL_1);
+	HAL_TIMEx_PWMN_Start(&htim1,TIM_CHANNEL_2);
+	HAL_TIMEx_PWMN_Start(&htim1,TIM_CHANNEL_3);
+	
 	__HAL_TIM_SET_COMPARE(&htim1 ,TIM_CHANNEL_1 ,(int)(TIM_1_8_PERIOD_CLOCKS*0));
 	__HAL_TIM_SET_COMPARE(&htim1 ,TIM_CHANNEL_2 ,(int)(TIM_1_8_PERIOD_CLOCKS*0));
 	__HAL_TIM_SET_COMPARE(&htim1 ,TIM_CHANNEL_3 ,(int)(TIM_1_8_PERIOD_CLOCKS*0));
+		HAL_Delay(delaym);
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-//	LOG_D("rt-thread is runing!\r\n");		
-
-	rt_thread_mdelay(100);	
-
-//			SVPWM_SET_OUT(0 ,0,result);	
-
-
   while (1)
   {
-
-		
-//		level = rt_hw_interrupt_disable();
-//		vo_angle = angle;
-//		
-//		rt_hw_interrupt_enable(level);
     /* USER CODE END WHILE */
-				SVPWM_SET_OUT(-angle * 7 ,0,result);	
-    /* USER CODE BEGIN 3 */
-//	__HAL_TIM_SET_COMPARE(&htim1 ,TIM_CHANNEL_1 ,(int)(2125*0.2));
-//	__HAL_TIM_SET_COMPARE(&htim1 ,TIM_CHANNEL_2 ,(int)(2125*0.2));
-//	__HAL_TIM_SET_COMPARE(&htim1 ,TIM_CHANNEL_3 ,(int)(2125*0.2));
-//			as5047_start();	
-		
-		
 
-//q+= 0.001;
-//if(angle_Multi>6.28)	angle_Multi=0;	
-//		rt_thread_mdelay(2);
+    /* USER CODE BEGIN 3 */
+		//电机能够转动起来，但是抖动利害，调节过延时函数、PWM频率均显示如此现象
+		A1;B0;C0;
+		HAL_Delay(delaym);
+		A0;B1;C0;
+		HAL_Delay(delaym);
+		A0;B0;C1;
+		HAL_Delay(delaym);
+		
   }
   /* USER CODE END 3 */
 }
@@ -194,11 +157,12 @@ void SystemClock_Config(void)
   /** Initializes the RCC Oscillators according to the specified parameters
   * in the RCC_OscInitTypeDef structure.
   */
-  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE;
-  RCC_OscInitStruct.HSEState = RCC_HSE_ON;
+  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI;
+  RCC_OscInitStruct.HSIState = RCC_HSI_ON;
+  RCC_OscInitStruct.HSICalibrationValue = RCC_HSICALIBRATION_DEFAULT;
   RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
-  RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
-  RCC_OscInitStruct.PLL.PLLM = 4;
+  RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSI;
+  RCC_OscInitStruct.PLL.PLLM = 8;
   RCC_OscInitStruct.PLL.PLLN = 168;
   RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV2;
   RCC_OscInitStruct.PLL.PLLQ = 4;
@@ -225,60 +189,6 @@ void SystemClock_Config(void)
 /* USER CODE BEGIN 4 */
 
 /* USER CODE END 4 */
-
-/**
-  * @brief  Period elapsed callback in non blocking mode
-  * @note   This function is called  when TIM14 interrupt took place, inside
-  * HAL_TIM_IRQHandler(). It makes a direct call to HAL_IncTick() to increment
-  * a global variable "uwTick" used as application time base.
-  * @param  htim : TIM handle
-  * @retval None
-  */
-void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
-{
-  /* USER CODE BEGIN Callback 0 */
-//SVPWM_SET_OUT(angle_Multi * 7,0,0.2);	
-  /* USER CODE END Callback 0 */
-  if (htim->Instance == TIM14)
-  {
-    HAL_IncTick();
-  }
-  /* USER CODE BEGIN Callback 1 */
-	if(htim->Instance==TIM13)
-	{
-		static float angle_mon_last=0;
-		static char once=1;
-		if(once==1)
-		{
-			angle_mon_last=angle;
-			once=0;
-		}
-		angle_diff = cycle_diff(angle - angle_mon_last, PI*2);
-		angle_mon_last=angle;
-		motor_speed=angle_diff/0.001f;	
-		for(int i=1;i<lenth;i++)
-		{
-			data_mon[i-1]=data_mon[i];
-		}data_mon[lenth-1]=motor_speed;
-		for(int i=0; i<lenth; i++) 
-		{
-			lvbo_data[i] = data_mon[i];
-		}
-		// 使用冒泡排序
-		for(int i=0; i<lenth-1; i++) {
-				for(int j=0; j<lenth-i-1; j++) {
-						if(lvbo_data[j] > lvbo_data[j+1]) {
-								float swap = lvbo_data[j];
-								lvbo_data[j] = lvbo_data[j+1];
-								lvbo_data[j+1] = swap;
-						}
-				}
-		}
-		motor_speed=lvbo_data[lenth/2];
-		motor_speed=Low_pass_filter(motor_speed,0.07);			
-	}
-  /* USER CODE END Callback 1 */
-}
 
 /**
   * @brief  This function is executed in case of error occurrence.
