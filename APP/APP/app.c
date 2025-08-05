@@ -44,6 +44,11 @@ extern   "C"
 #define THREAD_STACK_SIZE       512
 #define THREAD_TIMESLICE        5
 
+#define position_cycle 6 * 3.14159265358979 
+#define deg2rad(a) (PI * (a) / 180)
+#define rad2deg(a) (180 * (a) / PI)
+#define rad60 deg2rad(60)
+
 /*----------------------------------------------------------------------------*
 **                             Data Structures                                *
 **----------------------------------------------------------------------------*/
@@ -56,6 +61,7 @@ static arm_pid_instance_f32 pid_speed;
 static arm_pid_instance_f32 pid_torque_d;
 static arm_pid_instance_f32 pid_torque_q;
 
+extern 	float result;
 
 
 
@@ -83,7 +89,7 @@ float V_Q_pid=0;
 float angle_mon_last=0;
 
 
-float motor_speed_set=30,motor_tor_set=0,motor_pos_set;
+float motor_speed_set=1,motor_tor_set=0,motor_pos_set=0;
 
 /*----------------------------------------------------------------------------*
 **                             Extern Function                                *
@@ -103,6 +109,20 @@ void lib_speed_control(float speed)
 {
     float d = 0;
     float q = speed_loop(speed);
+    SVPWM_SET_OUT(angle_Multi*7,0,q);
+}
+
+/////////位置环/////////////
+static float position_loop(float rad)
+{
+    float diff = cycle_diff(rad -angle_Multi, position_cycle);
+    return arm_pid_f32(&pid_position, diff);
+}
+
+void lib_position_control(float rad)
+{
+    float d = 0;
+    float q = position_loop(rad);
     SVPWM_SET_OUT(angle_Multi*7,0,q);
 }
 
@@ -177,6 +197,9 @@ int pwm_start(void)
 	HAL_TIM_PWM_Start(&htim1 ,TIM_CHANNEL_1 );
 	HAL_TIM_PWM_Start(&htim1 ,TIM_CHANNEL_2 );
 	HAL_TIM_PWM_Start(&htim1 ,TIM_CHANNEL_3 );
+	HAL_TIMEx_PWMN_Start(&htim1,TIM_CHANNEL_1);
+	HAL_TIMEx_PWMN_Start(&htim1,TIM_CHANNEL_2);
+	HAL_TIMEx_PWMN_Start(&htim1,TIM_CHANNEL_3);
 	
 
 	
@@ -268,8 +291,10 @@ void HAL_ADCEx_InjectedConvCpltCallback(ADC_HandleTypeDef *hadc) //电流计算-clar
 
     motor_i_d = Low_pass_filter(motor_i_d,0.1); 
     motor_i_q = Low_pass_filter(motor_i_q,0.1); 
-
-			lib_speed_control(motor_speed_set);	
+		
+				SVPWM_SET_OUT(angle * 7 ,0,result);	
+//			lib_position_control(deg2rad(motor_pos_set));
+//			lib_speed_control(motor_speed_set);	
 	}
 
 }  

@@ -27,7 +27,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include <rthw.h>
 
 #define RT_MAIN_DEBUG
 #define DBG_TAG               "mian"    //dbg的表头
@@ -37,7 +37,7 @@
 #define DBG_LVL               DBG_ERROR
 #endif
 #include <rtdbg.h>						 //dbg头文件
-	float result=0;
+	float result=0.1;
 
 /* USER CODE END Includes */
 
@@ -90,6 +90,8 @@ int main(void)
 {
 
   /* USER CODE BEGIN 1 */
+			    register rt_base_t level;
+	volatile float vo_angle;
 
   /* USER CODE END 1 */
 
@@ -126,19 +128,19 @@ int main(void)
 	init_motor_control();		//配置是否成功待验证
 		HAL_GPIO_WritePin(EN_GATE_GPIO_Port,EN_GATE_Pin, GPIO_PIN_SET);
 		pwm_start();
-//		adc_inject_it();		
+		adc_inject_it();		
 
 		rt_thread_mdelay(10);
 //					/////零点////////
-//	__HAL_TIM_SET_COMPARE(&htim1 ,TIM_CHANNEL_1 ,(int)(2125*0.05));
-//	__HAL_TIM_SET_COMPARE(&htim1 ,TIM_CHANNEL_2 ,(int)(2125*0));
-//	__HAL_TIM_SET_COMPARE(&htim1 ,TIM_CHANNEL_3 ,(int)(2125*0));	
+	__HAL_TIM_SET_COMPARE(&htim1 ,TIM_CHANNEL_1 ,(int)(TIM_1_8_PERIOD_CLOCKS*0.05));
+	__HAL_TIM_SET_COMPARE(&htim1 ,TIM_CHANNEL_2 ,(int)(TIM_1_8_PERIOD_CLOCKS*0));
+	__HAL_TIM_SET_COMPARE(&htim1 ,TIM_CHANNEL_3 ,(int)(TIM_1_8_PERIOD_CLOCKS*0));	
 	  angle_mon_flag=1;
 		as5047_start();	
 	rt_thread_mdelay(400);
-	__HAL_TIM_SET_COMPARE(&htim1 ,TIM_CHANNEL_1 ,(int)(2125*0));
-	__HAL_TIM_SET_COMPARE(&htim1 ,TIM_CHANNEL_2 ,(int)(2125*0));
-	__HAL_TIM_SET_COMPARE(&htim1 ,TIM_CHANNEL_3 ,(int)(2125*0));
+	__HAL_TIM_SET_COMPARE(&htim1 ,TIM_CHANNEL_1 ,(int)(TIM_1_8_PERIOD_CLOCKS*0));
+	__HAL_TIM_SET_COMPARE(&htim1 ,TIM_CHANNEL_2 ,(int)(TIM_1_8_PERIOD_CLOCKS*0));
+	__HAL_TIM_SET_COMPARE(&htim1 ,TIM_CHANNEL_3 ,(int)(TIM_1_8_PERIOD_CLOCKS*0));
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -147,11 +149,17 @@ int main(void)
 
 	rt_thread_mdelay(100);	
 
-	
+//			SVPWM_SET_OUT(0 ,0,result);	
 
 
   while (1)
   {
+
+		
+		level = rt_hw_interrupt_disable();
+		vo_angle = angle;
+		
+		rt_hw_interrupt_enable(level);
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -161,10 +169,10 @@ int main(void)
 //			as5047_start();	
 		
 		
-		SVPWM_SET_OUT(angle_Multi * 7,0,result);	
-//angle_Multi+= 0.1;
+
+//q+= 0.001;
 //if(angle_Multi>6.28)	angle_Multi=0;	
-		rt_thread_mdelay(1000);
+//		rt_thread_mdelay(2);
   }
   /* USER CODE END 3 */
 }

@@ -151,9 +151,9 @@ void SVPWM_SET_OUT(float angle_el,float Uq,float Ud)   //µç½Ç¶È d  q
 	limit_max(D_U,0.90);
 	limit_max(D_V,0.90);
 	limit_max(D_W,0.90);
-	__HAL_TIM_SET_COMPARE(&htim1 ,TIM_CHANNEL_1 ,(int)(2125*D_U));
-	__HAL_TIM_SET_COMPARE(&htim1 ,TIM_CHANNEL_2 ,(int)(2125*D_V));
-	__HAL_TIM_SET_COMPARE(&htim1 ,TIM_CHANNEL_3 ,(int)(2125*D_W));
+	__HAL_TIM_SET_COMPARE(&htim1 ,TIM_CHANNEL_1 ,(int)(TIM_1_8_PERIOD_CLOCKS*D_U));
+	__HAL_TIM_SET_COMPARE(&htim1 ,TIM_CHANNEL_2 ,(int)(TIM_1_8_PERIOD_CLOCKS*D_V));
+	__HAL_TIM_SET_COMPARE(&htim1 ,TIM_CHANNEL_3 ,(int)(TIM_1_8_PERIOD_CLOCKS*D_W));
 }
 
 /**---------------------------------------------------------------------------*
