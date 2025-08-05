@@ -156,12 +156,12 @@ int main(void)
   {
 
 		
-		level = rt_hw_interrupt_disable();
-		vo_angle = angle;
-		
-		rt_hw_interrupt_enable(level);
+//		level = rt_hw_interrupt_disable();
+//		vo_angle = angle;
+//		
+//		rt_hw_interrupt_enable(level);
     /* USER CODE END WHILE */
-
+				SVPWM_SET_OUT(-angle * 7 ,0,result);	
     /* USER CODE BEGIN 3 */
 //	__HAL_TIM_SET_COMPARE(&htim1 ,TIM_CHANNEL_1 ,(int)(2125*0.2));
 //	__HAL_TIM_SET_COMPARE(&htim1 ,TIM_CHANNEL_2 ,(int)(2125*0.2));

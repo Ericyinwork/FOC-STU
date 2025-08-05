@@ -278,8 +278,8 @@ void HAL_ADCEx_InjectedConvCpltCallback(ADC_HandleTypeDef *hadc) //电流计算-clar
 	{
 //		u_2 = 3.3f * ((float)hadc->Instance->JDR1 / ((1 << 12) - 1) - 0.5); 
 		u_2 = 3.3f * ((float)hadc->Instance->JDR1 / ((1 << 12) - 1)-0.5); 
-		float i_1= u_1 / 0.0005f / 20;
-    float i_2 = u_2 / 0.0005f / 20;
+		float i_1= u_1 / 0.0005f / 10;
+    float i_2 = u_2 / 0.0005f / 10;
 	  motor_i_v= i_1;
     motor_i_u = i_2;
 		float i_alpha = 0;
@@ -292,7 +292,7 @@ void HAL_ADCEx_InjectedConvCpltCallback(ADC_HandleTypeDef *hadc) //电流计算-clar
     motor_i_d = Low_pass_filter(motor_i_d,0.1); 
     motor_i_q = Low_pass_filter(motor_i_q,0.1); 
 		
-				SVPWM_SET_OUT(angle * 7 ,0,result);	
+
 //			lib_position_control(deg2rad(motor_pos_set));
 //			lib_speed_control(motor_speed_set);	
 	}
