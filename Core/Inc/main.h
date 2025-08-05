@@ -82,6 +82,8 @@ void Error_Handler(void);
 #define M0_BH_GPIO_Port GPIOA
 #define M0_CH_Pin GPIO_PIN_10
 #define M0_CH_GPIO_Port GPIOA
+#define AS5047P_CS_Pin GPIO_PIN_3
+#define AS5047P_CS_GPIO_Port GPIOB
 
 /* USER CODE BEGIN Private defines */
 

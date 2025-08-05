@@ -18,6 +18,8 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
+#include "dma.h"
+#include "spi.h"
 #include "tim.h"
 #include "usart.h"
 #include "gpio.h"
@@ -25,6 +27,9 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "stdio.h"
+
+#include "utils.h"
+#include "as5047p.h"
 
 /* USER CODE END Includes */
 
@@ -58,7 +63,8 @@
  void setPhaseVoltage(float Uq, float Ud, float angle_el);
  
  extern float voltage_power_supply;
- float q=0.5;
+ float q=0.3;
+ float volatile f_angle = 0;
 
 /* USER CODE END PV */
 
@@ -102,10 +108,15 @@ int main(void)
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
+  MX_DMA_Init();
   MX_UART4_Init();
   MX_TIM1_Init();
+  MX_SPI3_Init();
   /* USER CODE BEGIN 2 */
 	HAL_GPIO_WritePin(EN_GATE_GPIO_Port, EN_GATE_Pin, GPIO_PIN_SET);
+	
+		angle_mon_flag=1;
+		as5047_start();	
 	
 		//输出6路PWM
 	HAL_TIM_PWM_Start(&htim1,TIM_CHANNEL_1);
@@ -116,7 +127,10 @@ int main(void)
 	HAL_TIMEx_PWMN_Start(&htim1,TIM_CHANNEL_3);
 	
 		voltage_power_supply=11;
-
+for(int i ; i<1000;i++)
+{
+			setPhaseVoltage(0,1,0);    //
+}
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -127,10 +141,10 @@ int main(void)
 
     /* USER CODE BEGIN 3 */
 		angle_el=angle_el+0.01;              //估计电角度 原是0.1或0.08运行电机抖动，切换为0.01转起来了
+		f_angle = -angle;
+		setPhaseVoltage(q,0,f_angle*7 );    //uq<1.2最好，免得被烧，仅验证开环，不要长时间运行开环。
 		
-		setPhaseVoltage(q,0,angle_el );    //uq<1.2最好，免得被烧，仅验证开环，不要长时间运行开环。
-		
-
+//		HAL_Delay(1);
 //		if (angle_el > 6.2)angle_el=0;
   }
   /* USER CODE END 3 */
