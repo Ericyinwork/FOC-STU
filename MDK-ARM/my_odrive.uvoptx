@@ -152,9 +152,9 @@
         <Bp>
           <Number>0</Number>
           <Type>0</Type>
-          <LineNumber>87</LineNumber>
+          <LineNumber>110</LineNumber>
           <EnabledFlag>1</EnabledFlag>
-          <Address>134232360</Address>
+          <Address>134235760</Address>
           <ByteObject>0</ByteObject>
           <HtxType>0</HtxType>
           <ManyObjects>0</ManyObjects>
@@ -163,7 +163,7 @@
           <BreakIfRCount>1</BreakIfRCount>
           <Filename>../Core/Src/main.c</Filename>
           <ExecCommand></ExecCommand>
-          <Expression>\\my_odrive\../Core/Src/main.c\87</Expression>
+          <Expression>\\my_odrive\../Core/Src/main.c\110</Expression>
         </Bp>
       </Breakpoint>
       <WatchWindow1>
@@ -186,6 +186,31 @@
           <count>3</count>
           <WinNumber>1</WinNumber>
           <ItemText>f_angle</ItemText>
+        </Ww>
+        <Ww>
+          <count>4</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>vel_sp</ItemText>
+        </Ww>
+        <Ww>
+          <count>5</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>KD_vel</ItemText>
+        </Ww>
+        <Ww>
+          <count>6</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>KI_vel</ItemText>
+        </Ww>
+        <Ww>
+          <count>7</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>KP_vel</ItemText>
+        </Ww>
+        <Ww>
+          <count>8</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>angle_Multi</ItemText>
         </Ww>
       </WatchWindow1>
       <WatchWindow2>

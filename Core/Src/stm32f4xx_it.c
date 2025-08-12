@@ -27,6 +27,11 @@
 /* Private typedef -----------------------------------------------------------*/
 /* USER CODE BEGIN TD */
 
+void setPhaseVoltage(float Uq, float Ud, float angle_el);
+float bsp_as5600GetAngle(void);
+float LPF_velocity(float x);
+float PID_velocity(float error);
+
 /* USER CODE END TD */
 
 /* Private define ------------------------------------------------------------*/
@@ -36,6 +41,17 @@
 
 /* Private macro -------------------------------------------------------------*/
 /* USER CODE BEGIN PM */
+
+extern float angle_Multi;
+extern float angle_el;
+float angle_c=0;
+float angle_prev=0;
+float vel_c=0;
+extern float vel_LPF;
+extern float y_vel_prev;
+float Uq_set;
+extern float vel_sp;
+extern float Ts;   
 
 /* USER CODE END PM */
 
@@ -58,7 +74,7 @@
 extern DMA_HandleTypeDef hdma_spi3_rx;
 extern DMA_HandleTypeDef hdma_spi3_tx;
 extern SPI_HandleTypeDef hspi3;
-extern UART_HandleTypeDef huart4;
+extern TIM_HandleTypeDef htim2;
 extern TIM_HandleTypeDef htim14;
 
 /* USER CODE BEGIN EV */
@@ -217,6 +233,33 @@ void DMA1_Stream5_IRQHandler(void)
 }
 
 /**
+  * @brief This function handles TIM2 global interrupt.
+  */
+void TIM2_IRQHandler(void)
+{
+  /* USER CODE BEGIN TIM2_IRQn 0 */
+	/***********************SVPWM�������PWM**************************/
+//	angle=bsp_as5600GetAngle();
+	angle_el= -angle_Multi*7;                    
+	Uq_set = PID_velocity(vel_sp-vel_LPF);        //vel_LPF���ʵ��ת��
+	setPhaseVoltage(Uq_set, 0, angle_el);
+	
+	/********************�ǶȲ�ּ���ת��*****************************/
+	angle_c = -angle_Multi;
+	vel_c = (angle_c - angle_prev)/Ts;
+	vel_LPF=LPF_velocity(vel_c);
+	angle_prev = angle_c;
+	/*****************************************************************/
+	
+
+  /* USER CODE END TIM2_IRQn 0 */
+  HAL_TIM_IRQHandler(&htim2);
+  /* USER CODE BEGIN TIM2_IRQn 1 */
+
+  /* USER CODE END TIM2_IRQn 1 */
+}
+
+/**
   * @brief This function handles TIM8 trigger and commutation interrupts and TIM14 global interrupt.
   */
 void TIM8_TRG_COM_TIM14_IRQHandler(void)
@@ -242,20 +285,6 @@ void SPI3_IRQHandler(void)
   /* USER CODE BEGIN SPI3_IRQn 1 */
 
   /* USER CODE END SPI3_IRQn 1 */
-}
-
-/**
-  * @brief This function handles UART4 global interrupt.
-  */
-void UART4_IRQHandler(void)
-{
-  /* USER CODE BEGIN UART4_IRQn 0 */
-
-  /* USER CODE END UART4_IRQn 0 */
-  HAL_UART_IRQHandler(&huart4);
-  /* USER CODE BEGIN UART4_IRQn 1 */
-
-  /* USER CODE END UART4_IRQn 1 */
 }
 
 /* USER CODE BEGIN 1 */

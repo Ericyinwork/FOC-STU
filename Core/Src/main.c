@@ -36,6 +36,8 @@
 /* Private typedef -----------------------------------------------------------*/
 /* USER CODE BEGIN PTD */
 
+#define _constrain(amt,low,high) ((amt)<(low)?(low):((amt)>(high)?(high):(amt)))
+
 /* USER CODE END PTD */
 
 /* Private define ------------------------------------------------------------*/
@@ -50,21 +52,42 @@
  #else
  #define PUTCHAR_PROTOTYPE int fputc(int ch, FILE *f)
  #endif
- PUTCHAR_PROTOTYPE
- {
- HAL_UART_Transmit(&huart4 , (uint8_t *)&ch, 1, 0xFFFF);  //ʹ�õĴ���handle
- return ch;
- } 
+// PUTCHAR_PROTOTYPE
+// {
+// HAL_UART_Transmit(&huart4 , (uint8_t *)&ch, 1, 0xFFFF);  //ʹ�õĴ���handle
+// return ch;
+// } 
+ int fputc(int ch,FILE *f)
+{
+	HAL_UART_Transmit(&huart4,(uint8_t*)&ch,1,0xffff);
+	return ch;
+}
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
- void setPhaseVoltage(float Uq, float Ud, float angle_el);
- 
- extern float voltage_power_supply;
- float q=0.3;
- float volatile f_angle = 0;
+void setPhaseVoltage(float Uq, float Ud, float angle_el);
+float bsp_as5600GetAngle(void);
+float LPF_velocity(float x);
+float PID_velocity(float error);
+
+
+//float angle=0;
+float angle_el=0;
+extern float voltage_power_supply;
+float y_vel_prev=0;
+float vel_LPF=0;
+float Ts=0.001;                     //1ms的控制周期
+float integral_vel_prev;
+
+//PID控制器参数赋值：
+float KP_vel=0.1;             //比较合适的参数：Kp=0.1;Ki=1
+float KI_vel=1;
+float KD_vel=0;
+float voltage_limit=2;        //转速环输出(Uq)限幅 =3
+
+float vel_sp=0;
 
 /* USER CODE END PV */
 
@@ -87,7 +110,7 @@ int main(void)
 {
 
   /* USER CODE BEGIN 1 */
-	float angle_el=1;
+
   /* USER CODE END 1 */
 
   /* MCU Configuration--------------------------------------------------------*/
@@ -112,6 +135,7 @@ int main(void)
   MX_UART4_Init();
   MX_TIM1_Init();
   MX_SPI3_Init();
+  MX_TIM2_Init();
   /* USER CODE BEGIN 2 */
 	HAL_GPIO_WritePin(EN_GATE_GPIO_Port, EN_GATE_Pin, GPIO_PIN_SET);
 	
@@ -131,6 +155,8 @@ for(int i ; i<1000;i++)
 {
 			setPhaseVoltage(0,1,0);    //
 }
+	HAL_TIM_Base_Start_IT(&htim2);                 //打开TIM2定时器中断
+		printf("system is runing\r\n");
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -140,12 +166,8 @@ for(int i ; i<1000;i++)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-		angle_el=angle_el+0.01;              //估计电角度 原是0.1或0.08运行电机抖动，切换为0.01转起来了
-		f_angle = -angle;
-		setPhaseVoltage(q,0,f_angle*7 );    //uq<1.2最好，免得被烧，仅验证开环，不要长时间运行开环。
-		
-//		HAL_Delay(1);
-//		if (angle_el > 6.2)angle_el=0;
+    printf("speed=%f\n",vel_LPF);
+		HAL_Delay(500);		
   }
   /* USER CODE END 3 */
 }
@@ -197,6 +219,37 @@ void SystemClock_Config(void)
 }
 
 /* USER CODE BEGIN 4 */
+
+/***********************************反馈转速低通滤波*******************************************/
+float LPF_velocity(float x)
+{
+	float y = 0.9*y_vel_prev + 0.1*x;
+	
+	y_vel_prev=y;
+	
+	return y;
+}
+//***********************************转速PID函数*******************************************/
+float PID_velocity(float error)
+{
+	float output,output_vel_prev;
+	float proportional,integral,derivative;
+	float error_vel_prev;
+	
+	proportional = KP_vel * (error);
+	integral = integral_vel_prev + KI_vel*Ts*error;
+	derivative = KD_vel*(error - error_vel_prev)/Ts;
+	
+	output = proportional + integral + derivative;
+	output = _constrain(output, -voltage_limit, voltage_limit);
+	
+	//存储上一次过程量
+	integral_vel_prev = integral;
+	output_vel_prev = output;
+	error_vel_prev = error;
+	
+	return output;
+}
 
 /* USER CODE END 4 */
 

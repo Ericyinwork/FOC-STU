@@ -22,19 +22,37 @@ Dialog DLL:      TCM.DLL V1.53.0.0
  
 <h2>Project:</h2>
 D:\AOSONG-Y\workrecord\FOC\odrive_source\my_odrive\FOC-STU - RTT\MDK-ARM\my_odrive.uvprojx
-Project File Date:  08/05/2025
+Project File Date:  08/12/2025
 
 <h2>Output:</h2>
 *** Using Compiler 'V5.06 update 7 (build 960)', folder: 'D:\Keil_v5\ARM\ARMCC\Bin'
 Build target 'my_odrive'
+compiling FOC_kernal.c...
+FOC_kernal.c(18): warning:  #1035-D: single-precision operand implicitly converted to double-precision
+    return a >= 0 ? a : (a + _2PI);
+FOC_kernal.c(35): warning:  #1035-D: single-precision operand implicitly converted to double-precision
+  	if(Uref> 0.577)Uref= 0.577;                     			//六边形的内切圆(SVPWM最大不失真旋转电压矢量赋值)根号3/3
+FOC_kernal.c(40): warning:  #1035-D: single-precision operand implicitly converted to double-precision
+  	  angle_el =_normalizeAngle(angle_el+_PI_2);            //加90度后是参考电压矢量的位置
+FOC_kernal.c(42): warning:  #1035-D: single-precision operand implicitly converted to double-precision
+  		angle_el =_normalizeAngle(angle_el-_PI_2);
+FOC_kernal.c(45): warning:  #1035-D: single-precision operand implicitly converted to double-precision
+  	sector = (angle_el / _PI_3) + 1; 
+FOC_kernal.c(93): warning:  #1-D: last line of file ends without a newline
+  }
+FOC_kernal.c: 6 warnings, 0 errors
 compiling main.c...
-../Core/Src/main.c(143): warning:  #1035-D: single-precision operand implicitly converted to double-precision
-  		angle_el=angle_el+0.01;              //浼拌鐢佃搴? 鍘熸槸0.1鎴?0.08杩愯鐢垫満鎶栧姩锛屽垏鎹负0.01杞捣鏉ヤ簡
-../Core/Src/main.c: 1 warning, 0 errors
+../Core/Src/main.c(226): warning:  #1035-D: single-precision operand implicitly converted to double-precision
+  	float y = 0.9*y_vel_prev + 0.1*x;
+../Core/Src/main.c(226): warning:  #1035-D: single-precision operand implicitly converted to double-precision
+  	float y = 0.9*y_vel_prev + 0.1*x;
+../Core/Src/main.c(235): warning:  #550-D: variable "output_vel_prev"  was set but never used
+  	float output,output_vel_prev;
+../Core/Src/main.c: 3 warnings, 0 errors
 linking...
-Program Size: Code=18618 RO-data=750 RW-data=48 ZI-data=2128  
+Program Size: Code=18760 RO-data=744 RW-data=104 ZI-data=1592  
 FromELF: creating hex file...
-"my_odrive\my_odrive.axf" - 0 Error(s), 1 Warning(s).
+"my_odrive\my_odrive.axf" - 0 Error(s), 9 Warning(s).
 
 <h2>Software Packages used:</h2>
 
@@ -57,7 +75,7 @@ Package Vendor: Keil
 
    * Component: ARM::CMSIS:CORE:5.5.0
       Include file:  CMSIS\Core\Include\tz_context.h
-Build Time Elapsed:  00:00:01
+Build Time Elapsed:  00:00:02
 </pre>
 </body>
 </html>
