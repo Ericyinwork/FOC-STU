@@ -141,7 +141,7 @@ for(int i ; i<1000;i++)
 
     /* USER CODE BEGIN 3 */
 		angle_el=angle_el+0.01;              //估计电角度 原是0.1或0.08运行电机抖动，切换为0.01转起来了
-		f_angle = -angle;
+		f_angle = -angle_Multi;
 		setPhaseVoltage(q,0,f_angle*7 );    //uq<1.2最好，免得被烧，仅验证开环，不要长时间运行开环。
 		
 //		HAL_Delay(1);
