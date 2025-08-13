@@ -1,8 +1,9 @@
 --cpu=Cortex-M4.fp.sp
 "my_odrive\startup_stm32f405xx.o"
-"my_odrive\foc_kernal.o"
 "my_odrive\as5047p.o"
 "my_odrive\utils.o"
+"my_odrive\foc_kernal_2.o"
+"my_odrive\foc_utils.o"
 "my_odrive\main.o"
 "my_odrive\gpio.o"
 "my_odrive\dma.o"

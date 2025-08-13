@@ -42,16 +42,20 @@ float PID_velocity(float error);
 /* Private macro -------------------------------------------------------------*/
 /* USER CODE BEGIN PM */
 
-extern float angle_Multi;
+extern float angle;
 extern float angle_el;
-float angle_c=0;
-float angle_prev=0;
+
+float angle_c = 0;
+float angle_prev = 0;
 float vel_c=0;
+
 extern float vel_LPF;
 extern float y_vel_prev;
-float Uq_set;
+float Uq_set=0.3;
 extern float vel_sp;
 extern float Ts;   
+
+float uq = 0.3;
 
 /* USER CODE END PM */
 
@@ -238,17 +242,17 @@ void DMA1_Stream5_IRQHandler(void)
 void TIM2_IRQHandler(void)
 {
   /* USER CODE BEGIN TIM2_IRQn 0 */
-	/***********************SVPWM�������PWM**************************/
-//	angle=bsp_as5600GetAngle();
-	angle_el= -angle_Multi*7;                    
-	Uq_set = PID_velocity(vel_sp-vel_LPF);        //vel_LPF���ʵ��ת��
-	setPhaseVoltage(Uq_set, 0, angle_el);
+
+/***********************SVPWM函数输出PWM**************************/
+//	angle_el=-angle*7;                    
+////	Uq_set = PID_velocity(vel_sp-vel_LPF);        //vel_LPF电机实际转速
+//	setPhaseVoltage(Uq_set, 0, angle_el);
 	
-	/********************�ǶȲ�ּ���ת��*****************************/
-	angle_c = -angle_Multi;
+	/********************角度差分计算转速*****************************/
+//	angle_c = -angle;
 	vel_c = (angle_c - angle_prev)/Ts;
-	vel_LPF=LPF_velocity(vel_c);
-	angle_prev = angle_c;
+//	vel_LPF=LPF_velocity(vel_c);
+//	angle_prev = angle_c;
 	/*****************************************************************/
 	
 

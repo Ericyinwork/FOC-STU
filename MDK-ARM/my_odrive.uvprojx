@@ -394,11 +394,6 @@
           <GroupName>Application/User/Core</GroupName>
           <Files>
             <File>
-              <FileName>FOC_kernal.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\FOC_kernal.c</FilePath>
-            </File>
-            <File>
               <FileName>as5047p.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\as5047p.c</FilePath>
@@ -407,6 +402,16 @@
               <FileName>utils.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\utils.c</FilePath>
+            </File>
+            <File>
+              <FileName>FOC_kernal_2.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\FOC_kernal_2.c</FilePath>
+            </File>
+            <File>
+              <FileName>FOC_utils.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\FOC_utils.c</FilePath>
             </File>
             <File>
               <FileName>main.c</FileName>

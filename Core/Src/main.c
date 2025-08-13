@@ -85,9 +85,11 @@ float integral_vel_prev;
 float KP_vel=0.1;             //比较合适的参数：Kp=0.1;Ki=1
 float KI_vel=1;
 float KD_vel=0;
-float voltage_limit=2;        //转速环输出(Uq)限幅 =3
+float voltage_limit=3;        //转速环输出(Uq)限幅 =3
+//float angle_c=0;
 
 float vel_sp=0;
+extern float Uq_set;
 
 /* USER CODE END PV */
 
@@ -155,8 +157,8 @@ for(int i ; i<1000;i++)
 {
 			setPhaseVoltage(0,1,0);    //
 }
-	HAL_TIM_Base_Start_IT(&htim2);                 //打开TIM2定时器中断
-		printf("system is runing\r\n");
+//	HAL_TIM_Base_Start_IT(&htim2);                 //打开TIM2定时器中断
+//		printf("system is runing\r\n");
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -166,8 +168,11 @@ for(int i ; i<1000;i++)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-    printf("speed=%f\n",vel_LPF);
-		HAL_Delay(500);		
+			angle_el=-angle*7;                    
+//	Uq_set = PID_velocity(vel_sp-vel_LPF);        //vel_LPF电机实际转速
+	setPhaseVoltage(Uq_set, 0, angle_el);
+//    printf("speed=%f  ud = %f\n",vel_LPF,Uq_set);
+//		HAL_Delay(500);		
   }
   /* USER CODE END 3 */
 }
@@ -219,7 +224,6 @@ void SystemClock_Config(void)
 }
 
 /* USER CODE BEGIN 4 */
-
 /***********************************反馈转速低通滤波*******************************************/
 float LPF_velocity(float x)
 {
