@@ -69,24 +69,22 @@
 
 /* USER CODE BEGIN PV */
 void setPhaseVoltage(float Uq, float Ud, float angle_el);
-float bsp_as5600GetAngle(void);
+
 float LPF_velocity(float x);
 float PID_velocity(float error);
-
-
 //float angle=0;
 float angle_el=0;
 extern float voltage_power_supply;
 float y_vel_prev=0;
 float vel_LPF=0;
-float Ts=0.002;                     //1ms的控制周期
+float Ts=0.002;                     //2ms的控制周期
 float integral_vel_prev;
 
 //PID控制器参数赋值：
 float KP_vel=0.001;             //比较合适的参数不同电机参数不同
-float KI_vel=1;
+float KI_vel=0.1;
 float KD_vel=0;
-float voltage_limit=2;        //转速环输出(Uq)限幅 =3
+float voltage_limit=2;        //转速环输出(Uq)限幅 =2
 //float angle_c=0;
 
 //ADC

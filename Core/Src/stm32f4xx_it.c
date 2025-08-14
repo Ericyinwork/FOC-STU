@@ -56,7 +56,6 @@ float Uq_set=0;
 extern float vel_sp;
 extern float Ts;   
 
-float uq = 0.3;
 
 /* USER CODE END PM */
 
@@ -259,20 +258,14 @@ void TIM2_IRQHandler(void)
 {
   /* USER CODE BEGIN TIM2_IRQn 0 */
 
-/***********************SVPWM函数输出PWM**************************/
-//	angle_el=angle*7;                    
-////	Uq_set = PID_velocity(vel_sp-vel_LPF);        //vel_LPF电机实际转速
-	Uq_set = PID_velocity(vel_sp-vel_c);        //vel_LPF电机实际转速
-//	setPhaseVoltage(Uq_set, 0, -angle_el);
-	
+/***********************PID函数输出Uq_set**************************/
+	Uq_set = PID_velocity(vel_sp-vel_LPF);        //vel_LPF电机实际转速
 	/********************角度差分计算转速*****************************/
 	angle_c = angle_Multi;
 	vel_c = (angle_c - angle_prev)/Ts;
 	vel_LPF=LPF_velocity(vel_c);
 	angle_prev = angle_c;
-
-	/*****************************************************************/
-	
+	/*****************************************************************/	
 
   /* USER CODE END TIM2_IRQn 0 */
   HAL_TIM_IRQHandler(&htim2);
