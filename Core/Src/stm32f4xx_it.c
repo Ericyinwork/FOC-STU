@@ -26,7 +26,7 @@
 
 /* Private typedef -----------------------------------------------------------*/
 /* USER CODE BEGIN TD */
-
+#include "stdio.h"
 void setPhaseVoltage(float Uq, float Ud, float angle_el);
 float bsp_as5600GetAngle(void);
 float LPF_velocity(float x);
@@ -43,6 +43,7 @@ float PID_velocity(float error);
 /* USER CODE BEGIN PM */
 
 extern float angle;
+extern float angle_Multi;
 extern float angle_el;
 
 float angle_c = 0;
@@ -51,7 +52,7 @@ float vel_c=0;
 
 extern float vel_LPF;
 extern float y_vel_prev;
-float Uq_set=0.3;
+float Uq_set=0;
 extern float vel_sp;
 extern float Ts;   
 
@@ -75,6 +76,7 @@ float uq = 0.3;
 /* USER CODE END 0 */
 
 /* External variables --------------------------------------------------------*/
+extern ADC_HandleTypeDef hadc1;
 extern DMA_HandleTypeDef hdma_spi3_rx;
 extern DMA_HandleTypeDef hdma_spi3_tx;
 extern SPI_HandleTypeDef hspi3;
@@ -237,6 +239,20 @@ void DMA1_Stream5_IRQHandler(void)
 }
 
 /**
+  * @brief This function handles ADC1, ADC2 and ADC3 global interrupts.
+  */
+void ADC_IRQHandler(void)
+{
+  /* USER CODE BEGIN ADC_IRQn 0 */
+
+  /* USER CODE END ADC_IRQn 0 */
+  HAL_ADC_IRQHandler(&hadc1);
+  /* USER CODE BEGIN ADC_IRQn 1 */
+
+  /* USER CODE END ADC_IRQn 1 */
+}
+
+/**
   * @brief This function handles TIM2 global interrupt.
   */
 void TIM2_IRQHandler(void)
@@ -244,15 +260,17 @@ void TIM2_IRQHandler(void)
   /* USER CODE BEGIN TIM2_IRQn 0 */
 
 /***********************SVPWM函数输出PWM**************************/
-//	angle_el=-angle*7;                    
+//	angle_el=angle*7;                    
 ////	Uq_set = PID_velocity(vel_sp-vel_LPF);        //vel_LPF电机实际转速
-//	setPhaseVoltage(Uq_set, 0, angle_el);
+	Uq_set = PID_velocity(vel_sp-vel_c);        //vel_LPF电机实际转速
+//	setPhaseVoltage(Uq_set, 0, -angle_el);
 	
 	/********************角度差分计算转速*****************************/
-//	angle_c = -angle;
+	angle_c = angle_Multi;
 	vel_c = (angle_c - angle_prev)/Ts;
-//	vel_LPF=LPF_velocity(vel_c);
-//	angle_prev = angle_c;
+	vel_LPF=LPF_velocity(vel_c);
+	angle_prev = angle_c;
+
 	/*****************************************************************/
 	
 

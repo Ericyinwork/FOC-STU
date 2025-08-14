@@ -18,6 +18,7 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
+#include "adc.h"
 #include "dma.h"
 #include "spi.h"
 #include "tim.h"
@@ -78,18 +79,22 @@ float angle_el=0;
 extern float voltage_power_supply;
 float y_vel_prev=0;
 float vel_LPF=0;
-float Ts=0.001;                     //1ms的控制周期
+float Ts=0.002;                     //1ms的控制周期
 float integral_vel_prev;
 
 //PID控制器参数赋值：
-float KP_vel=0.1;             //比较合适的参数：Kp=0.1;Ki=1
+float KP_vel=0.001;             //比较合适的参数不同电机参数不同
 float KI_vel=1;
 float KD_vel=0;
-float voltage_limit=3;        //转速环输出(Uq)限幅 =3
+float voltage_limit=2;        //转速环输出(Uq)限幅 =3
 //float angle_c=0;
 
-float vel_sp=0;
+//ADC
+float u_1, u_2;
+
+float vel_sp=30;								//电机转动初值
 extern float Uq_set;
+extern float vel_c,angle_prev;
 
 /* USER CODE END PV */
 
@@ -138,12 +143,13 @@ int main(void)
   MX_TIM1_Init();
   MX_SPI3_Init();
   MX_TIM2_Init();
+  MX_ADC1_Init();
   /* USER CODE BEGIN 2 */
 	HAL_GPIO_WritePin(EN_GATE_GPIO_Port, EN_GATE_Pin, GPIO_PIN_SET);
 	
 		angle_mon_flag=1;
 		as5047_start();	
-	
+	  HAL_ADCEx_InjectedStart_IT(&hadc1);
 		//输出6路PWM
 	HAL_TIM_PWM_Start(&htim1,TIM_CHANNEL_1);
 	HAL_TIM_PWM_Start(&htim1,TIM_CHANNEL_2);
@@ -157,7 +163,7 @@ for(int i ; i<1000;i++)
 {
 			setPhaseVoltage(0,1,0);    //
 }
-//	HAL_TIM_Base_Start_IT(&htim2);                 //打开TIM2定时器中断
+	HAL_TIM_Base_Start_IT(&htim2);                 //打开TIM2定时器中断
 //		printf("system is runing\r\n");
   /* USER CODE END 2 */
 
@@ -168,11 +174,12 @@ for(int i ; i<1000;i++)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-			angle_el=-angle*7;                    
+			printf("angle = %f  vel_c = %f  vel_LPF = %f  angle_prev = %f \r\n",angle,vel_c,vel_LPF,angle_prev);
+//			angle_el=angle*7;                    
 //	Uq_set = PID_velocity(vel_sp-vel_LPF);        //vel_LPF电机实际转速
-	setPhaseVoltage(Uq_set, 0, angle_el);
+//	setPhaseVoltage(Uq_set, 0, -angle_el);
 //    printf("speed=%f  ud = %f\n",vel_LPF,Uq_set);
-//		HAL_Delay(500);		
+		HAL_Delay(500);		
   }
   /* USER CODE END 3 */
 }
@@ -254,6 +261,20 @@ float PID_velocity(float error)
 	
 	return output;
 }
+
+
+void HAL_ADCEx_InjectedConvCpltCallback(ADC_HandleTypeDef *hadc) //电流计算-clarke变换-Park变换-PID-SVPWM-PWM
+{
+  if (hadc->Instance == ADC1)
+  {
+    u_1 = 3.3f * ((float)hadc->Instance->JDR1/ ((1 << 12) - 1) - 0.5);  
+		
+	angle_el=angle_Multi*7;	
+	setPhaseVoltage(Uq_set, 0, -angle_el);
+	
+  }  
+
+}   
 
 /* USER CODE END 4 */
 
