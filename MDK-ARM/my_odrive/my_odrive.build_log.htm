@@ -22,26 +22,27 @@ Dialog DLL:      TCM.DLL V1.53.0.0
  
 <h2>Project:</h2>
 D:\AOSONG-Y\workrecord\FOC\odrive_source\my_odrive\FOC-STU - RTT\MDK-ARM\my_odrive.uvprojx
-Project File Date:  08/14/2025
+Project File Date:  08/15/2025
 
 <h2>Output:</h2>
 *** Using Compiler 'V5.06 update 7 (build 960)', folder: 'D:\Keil_v5\ARM\ARMCC\Bin'
 Build target 'my_odrive'
-compiling stm32f4xx_it.c...
 compiling main.c...
-../Core/Src/main.c(235): warning:  #1035-D: single-precision operand implicitly converted to double-precision
+../Core/Src/main.c(242): warning:  #1035-D: single-precision operand implicitly converted to double-precision
   	float y = 0.9*y_vel_prev + 0.1*x;
-../Core/Src/main.c(235): warning:  #1035-D: single-precision operand implicitly converted to double-precision
+../Core/Src/main.c(242): warning:  #1035-D: single-precision operand implicitly converted to double-precision
   	float y = 0.9*y_vel_prev + 0.1*x;
-../Core/Src/main.c(244): warning:  #550-D: variable "output_vel_prev"  was set but never used
+../Core/Src/main.c(251): warning:  #550-D: variable "output_vel_prev"  was set but never used
   	float output,output_vel_prev;
-../Core/Src/main.c(268): warning:  #1035-D: single-precision operand implicitly converted to double-precision
+../Core/Src/main.c(274): warning:  #550-D: variable "output_vel_prev"  was set but never used
+  	float output,output_vel_prev;
+../Core/Src/main.c(299): warning:  #1035-D: single-precision operand implicitly converted to double-precision
       u_1 = 3.3f * ((float)hadc->Instance->JDR1/ ((1 << 12) - 1) - 0.5);  
-../Core/Src/main.c: 4 warnings, 0 errors
+../Core/Src/main.c: 5 warnings, 0 errors
 linking...
-Program Size: Code=20976 RO-data=744 RW-data=108 ZI-data=1668  
+Program Size: Code=21168 RO-data=744 RW-data=116 ZI-data=1668  
 FromELF: creating hex file...
-"my_odrive\my_odrive.axf" - 0 Error(s), 4 Warning(s).
+"my_odrive\my_odrive.axf" - 0 Error(s), 5 Warning(s).
 
 <h2>Software Packages used:</h2>
 
