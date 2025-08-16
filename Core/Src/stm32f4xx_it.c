@@ -31,6 +31,7 @@ void setPhaseVoltage(float Uq, float Ud, float angle_el);
 float bsp_as5600GetAngle(void);
 float LPF_velocity(float x);
 float PID_velocity(float error);
+float PID_angle(float error);
 
 /* USER CODE END TD */
 
@@ -55,6 +56,7 @@ extern float y_vel_prev;
 float Uq_set=0;
 extern float vel_sp;
 extern float Ts;   
+extern float angle_sp;
 
 
 /* USER CODE END PM */
@@ -259,6 +261,7 @@ void TIM2_IRQHandler(void)
   /* USER CODE BEGIN TIM2_IRQn 0 */
 
 /***********************PID函数输出Uq_set**************************/
+//	vel_sp=PID_angle(angle_sp-angle_Multi);
 	Uq_set = PID_velocity(vel_sp-vel_LPF);        //vel_LPF电机实际转速
 	/********************角度差分计算转速*****************************/
 	angle_c = angle_Multi;

@@ -84,13 +84,20 @@ float integral_vel_prev;
 float KP_vel=0.001;             //比较合适的参数不同电机参数不同
 float KI_vel=0.1;
 float KD_vel=0;
-float voltage_limit=2;        //转速环输出(Uq)限幅 =2
+float voltage_limit = 2;        //转速环输出(Uq)限幅 =2
+float integral_limit = 2;
 //float angle_c=0;
 
-//ADC
-float u_1, u_2;
+float KP_ang=0.1;           //修改系数区别不大
+float KI_ang=1;
+float KD_ang=0;
+float speed_limit=30;      //30 rad/s
 
-float vel_sp=30;								//电机转动初值
+//ADC
+float u_1, u_2, i_1, i_2;
+
+float vel_sp=30;											//电机转速初值
+float angle_sp=3.14159;								//电机angle转动初值
 extern float Uq_set;
 extern float vel_c,angle_prev;
 
@@ -172,7 +179,7 @@ for(int i ; i<1000;i++)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-			printf("angle = %f  vel_c = %f  vel_LPF = %f  angle_prev = %f \r\n",angle,vel_c,vel_LPF,angle_prev);
+			printf("angle = %f  vel_LPF = %f   i_1 = %f  i_2 = %f \r\n",angle,vel_LPF,i_1,i_2);
 //			angle_el=angle*7;                    
 //	Uq_set = PID_velocity(vel_sp-vel_LPF);        //vel_LPF电机实际转速
 //	setPhaseVoltage(Uq_set, 0, -angle_el);
@@ -247,6 +254,30 @@ float PID_velocity(float error)
 	
 	proportional = KP_vel * (error);
 	integral = integral_vel_prev + KI_vel*Ts*error;
+	integral = _constrain(integral, -integral_limit, integral_limit);
+	derivative = KD_vel*(error - error_vel_prev)/Ts;
+	
+	output = proportional + integral + derivative;
+	output = _constrain(output, -voltage_limit, voltage_limit);
+	
+	//存储上一次过程量
+	integral_vel_prev = integral;
+	output_vel_prev = output;
+	error_vel_prev = error;
+	
+	return output;
+}
+
+//***********************************angle环 PID函数*******************************************/
+float PID_angle(float error)
+{
+	float output,output_vel_prev;
+	float proportional,integral,derivative;
+	float error_vel_prev;
+	
+	proportional = KP_vel * (error);
+	integral = integral_vel_prev + KI_vel*Ts*error;
+	integral = _constrain(integral, -integral_limit, integral_limit);
 	derivative = KD_vel*(error - error_vel_prev)/Ts;
 	
 	output = proportional + integral + derivative;
@@ -265,8 +296,11 @@ void HAL_ADCEx_InjectedConvCpltCallback(ADC_HandleTypeDef *hadc) //电流计算-
 {
   if (hadc->Instance == ADC1)
   {
-    u_1 = 3.3f * ((float)hadc->Instance->JDR1/ ((1 << 12) - 1) - 0.5);  
-		
+    u_1 = 3.3f * ((float)hadc->Instance->JDR1/ ((1 << 12) - 1) - 0.5);
+    u_2 = 3.3f * ((float)hadc->Instance->JDR2 / ((1 << 12) - 1) - 0.5);
+		i_1= u_1 / 0.0005f / 10;
+    i_2 = u_2 / 0.0005f / 10;
+	printf("angle = %f  vel_LPF = %f   i_1 = %f  i_2 = %f \r\n",angle,vel_LPF,i_1,i_2);
 	angle_el=angle_Multi*7;	
 	setPhaseVoltage(Uq_set, 0, -angle_el);
 	
