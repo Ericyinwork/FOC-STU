@@ -13,6 +13,7 @@
 "my_odrive\stm32f4xx_it.o"
 "my_odrive\stm32f4xx_hal_msp.o"
 "my_odrive\stm32f4xx_hal_timebase_tim.o"
+"my_odrive\drv8301.o"
 "my_odrive\stm32f4xx_hal_tim.o"
 "my_odrive\stm32f4xx_hal_tim_ex.o"
 "my_odrive\stm32f4xx_hal_adc.o"

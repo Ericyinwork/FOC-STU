@@ -611,6 +611,11 @@
               <FileType>1</FileType>
               <FilePath>../Core/Src/stm32f4xx_hal_timebase_tim.c</FilePath>
             </File>
+            <File>
+              <FileName>drv8301.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\drv8301.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -933,9 +938,6 @@
           </Files>
         </Group>
         <Group>
-          <GroupName>::CMSIS</GroupName>
-        </Group>
-        <Group>
           <GroupName>Middlewares/Library/DSP Library/DSP Library</GroupName>
           <GroupOption>
             <CommonProperty>
@@ -1032,6 +1034,9 @@
               </FileOption>
             </File>
           </Files>
+        </Group>
+        <Group>
+          <GroupName>::CMSIS</GroupName>
         </Group>
       </Groups>
     </Target>
